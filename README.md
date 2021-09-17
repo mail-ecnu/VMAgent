@@ -29,3 +29,8 @@ Test firstfit  in fading environment:
 ```
 python baselines.py --env=fading --baseline ff
 ```
+
+
+## Visualization
+
+For visualization, see the [`render`](./render) directory in detail.
