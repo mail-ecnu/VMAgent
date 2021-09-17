@@ -1,0 +1,19 @@
+# --- Default ---
+
+# Environment Options
+num_process: 20
+
+# Learning Options
+learn_interval: 1
+train_n: 1
+max_epoch: 10000
+batch_size: 1024
+
+lr: 0.005
+gamma: 0.95
+tau: 0.001
+target_update_interval: 1
+
+memory: 'replay'
+capacity: 1000000
+test_interval: 100
