@@ -2,8 +2,9 @@
 VMAgent is a platform for both virtual machine (VM) scheduling and reinforcement learning (RL).
 It provides the first VM scheudling simulator based on the one month east china data in huawei cloud.
 It includes three scenarios in practical cloud: Recovering, Fading and Expansion.
-Our video is at [video](https://drive.google.com/file/d/14EkVzUnEXM7b8YNJiZ6cxLxhcj5yW4V_/view?usp=sharing)
-<img src="data/rec-small.gif" width="200"><img src="data/rec-large.gif" width="200"><img src="data/exp-large.gif" width="200">
+Our video is at [video](https://drive.google.com/file/d/14EkVzUnEXM7b8YNJiZ6cxLxhcj5yW4V_/view?usp=sharing).
+Some demonstrations are listed:
+<img src="data/rec-small.gif" width="300"><img src="data/rec-large.gif" width="300"><img src="data/exp-large.gif" width="300">
 ## Installation
 
 * `conda env create -f environment.yml`
