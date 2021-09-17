@@ -16,7 +16,7 @@ def getData(path):
     index = 0
     for item in l:
         newdict = {'uuid': item[0], 'cpu': int(item[1]), 'mem': item[2],
-                   'time': item[3], 'cpu_mul': int(item[4]), 'is_double': int(item[5]), 'type': item[6]}
+                   'time': item[3], 'is_double': int(item[4])}
         l[index] = newdict
         index += 1
     # print(f'total step : {index}')
