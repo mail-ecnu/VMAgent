@@ -4,6 +4,7 @@ It provides the first VM scheudling simulator based on the one month east china 
 It includes three scenarios in practical cloud: Recovering, Fading and Expansion.
 Our video is at [video](https://drive.google.com/file/d/14EkVzUnEXM7b8YNJiZ6cxLxhcj5yW4V_/view?usp=sharing).
 Some demonstrations are listed:
+
 <img src="data/rec-small.gif" width="250"><img src="data/rec-large.gif" width="250"><img src="data/exp-large.gif" width="250">
 ## Installation
 
