@@ -1,7 +1,7 @@
 # --- Default ---
 
 # Environment Options
-num_process: 20
+num_process: 3
 
 # Learning Options
 learn_interval: 1

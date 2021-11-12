@@ -19,7 +19,7 @@ print(torch.cuda.is_available())
 
 from config import Config
 
-DATA_PATH = 'data/mydata.csv'
+DATA_PATH = '../dataset.csv'
 
 parser = argparse.ArgumentParser(description='Sched More Servers')
 parser.add_argument('--env', type=str)
@@ -54,12 +54,12 @@ def run(envs, step_list, mac, mem, learner, eps, args):
         alives = envs.get_alives().copy()
         if  all(~alives):
             return tot_reward.mean(), tot_lenth.mean()
-    
+
         avail = envs.get_attr('avail')
         feat = envs.get_attr('req')
         obs = envs.get_attr('obs')
         state = {'obs':obs, 'feat': feat, 'avail': avail}
-        
+
         action = mac.select_actions(state, eps)
         action, next_obs, reward, done = envs.step(action)
         stop_idxs[alives] += 1
@@ -68,7 +68,7 @@ def run(envs, step_list, mac, mem, learner, eps, args):
         next_feat = envs.get_attr('req')
         tot_reward[alives] += reward
         tot_lenth[alives] += 1
-        
+
         buf = {'obs':obs,'feat':feat, 'avail':avail, 'action':action,
                 'reward': reward, 'next_obs':next_obs, 'next_feat':next_feat,
                 'next_avail': next_avail, 'done': done}
@@ -79,8 +79,8 @@ if __name__ == "__main__":
 
 
     # execution
-    
-    step_list = np.array([42132])
+
+    step_list = np.array([1234])
     my_steps = step_list.repeat(args.num_process)
 
     envs = SubprocVecEnv([make_env(args.N, args.cpu, args.mem, allow_release=(args.allow_release=='True')) for i in range(args.num_process)])
@@ -117,7 +117,7 @@ if __name__ == "__main__":
                 'tot_reward': val_return.mean(),
                 'tot_len': val_lenth.mean(),
             }
-            
+
             logx.metric('val', val_metric, x)
 
             path = f'models/{args.N}server-{x}'
@@ -126,7 +126,7 @@ if __name__ == "__main__":
                 os.makedirs(path)
 
             learner.save_models(path)
-            
+
             t_end = time.time()
             print('lasted %d hour, %d min, %d sec '% time_format(t_end - t_start))
             print('remain %d hour, %d min, %d sec'% time_format((MAX_EPOCH-x)//args.test_interval * (t_end - t_start)))
