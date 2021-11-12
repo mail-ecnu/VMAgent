@@ -6,7 +6,7 @@ from gym import spaces
 import json
 
 
-def getData(path, double_thr=1e10):
+def getData(path, double_thr=1e10, smallFilter=True):
     '''
     csv_data: input a DataFrame Object
     return: A list like [{'uuid':'',...},{},...]
@@ -17,6 +17,8 @@ def getData(path, double_thr=1e10):
     for item in l:
         newdict = {'uuid': item[0], 'cpu': int(item[1]), 'mem': item[2],
                    'time': item[3], 'type': int(item[4]), 'is_double': 0}
+        if smallFilter and newdict['cpu']<4:
+            continue
         if newdict['mem'] > double_thr:
             newdict['is_double'] = 1
         l[index] = newdict
@@ -230,7 +232,7 @@ class Cluster():
 
 class SchedEnv(gym.Env):
     metadata = {'render.modes': ['human']}
-    def __init__(self, N, cpu, mem, path, render_path=None, allow_release=False):
+    def __init__(self, N, cpu, mem, path, render_path=None, allow_release=False, double_thr=1e10):
         '''
             N is the number of servers, cpu and mem are the attribute of the server
             path is the csv path
@@ -240,7 +242,7 @@ class SchedEnv(gym.Env):
         self.cpu = cpu
         self.mem = mem
         self.cluster = Cluster(N, cpu, mem)
-        self.requests = getData(path)
+        self.requests = getData(path, double_thr)
         self.t = 0
         self.dur = 0
         self.allow_release = allow_release
@@ -273,6 +275,7 @@ class SchedEnv(gym.Env):
         else:
             request_info =[[[request['cpu'], request['mem']], [0,0]], [[0,0], [request['cpu'], request['mem']]]]
         state = self.cluster.describe()
+        print('reset......')
         return state
 
     def termination(self):
