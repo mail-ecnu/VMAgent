@@ -20,7 +20,7 @@ import random
 print(torch.cuda.is_available())
 from config import Config
 
-DATA_PATH = './data/mydata.csv'
+DATA_PATH = '../dataset.csv'
 parser = argparse.ArgumentParser(description='Sched More Servers')
 
 parser.add_argument('--env', type=str)
@@ -78,11 +78,11 @@ if __name__ == "__main__":
     render_path = f'{args.baseline}-{args.N}.p'
     envs = SubprocVecEnv([make_env(args.N, args.cpu, args.mem, allow_release=(args.allow_release=='True')) for i in range(args.num_process)])
 
-    step_list = [42132]
+    step_list = [1213]
     results = {}
 
     envs.reset(step_list)
     test_len = sample_baselines(envs, step_list, args.baseline, args)
-    results[args.baseline] = test_len 
+    results[args.baseline] = test_len
 
     print(results)

@@ -4,9 +4,9 @@ import random
 import gym
 from gym import spaces
 import json
-    
 
-def getData(path):
+
+def getData(path, double_thr=1e10):
     '''
     csv_data: input a DataFrame Object
     return: A list like [{'uuid':'',...},{},...]
@@ -16,7 +16,9 @@ def getData(path):
     index = 0
     for item in l:
         newdict = {'uuid': item[0], 'cpu': int(item[1]), 'mem': item[2],
-                   'time': item[3], 'is_double': int(item[4])}
+                   'time': item[3], 'type': int(item[4]), 'is_double': 0}
+        if newdict['mem'] > double_thr:
+            newdict['is_double'] = 1
         l[index] = newdict
         index += 1
     # print(f'total step : {index}')
@@ -100,7 +102,7 @@ class Server():
                     self.remain_cpu[i] += request['cpu']/2
                     self.remain_mem[i] += request['mem']/2
                     del_status = 0
-                    
+
                 else:
                     self.remain_cpu[i] += request['cpu']
                     self.remain_mem[i] += request['mem']
@@ -137,7 +139,7 @@ class Server():
         self.remain_mem[1] = status[1][1]
 
     def describe(self):
-        return [[self.remain_cpu[0], self.remain_mem[0]], 
+        return [[self.remain_cpu[0], self.remain_mem[0]],
                 [self.remain_cpu[1], self.remain_mem[1]]]
         # return {'remain_cpu': self.remain_cpu, 'remain_mem': self.remain_mem,
         # 'numas': self.stored
@@ -253,7 +255,7 @@ class SchedEnv(gym.Env):
 
 
     def get_property(self,):
-        return N, cpu, mem
+        return self.N, self.cpu, self.mem
 
     def reset(self, step):
         '''
@@ -263,7 +265,7 @@ class SchedEnv(gym.Env):
         self.start = step
         self.dur = 0
         self.cluster.reset()
-        while self.requests[self.t]['type'] == 0:
+        while self.requests[self.t]['type'] == 1:
             self.t += 1
         request = self.requests[self.t]
         if request['is_double'] == 1:
@@ -292,7 +294,7 @@ class SchedEnv(gym.Env):
             handle delete request until get to create request
         '''
         request = self.requests[self.t]
-        while request['type'] == 0:
+        while request['type'] == 1:
             if self.allow_release:
                 del_status = self.cluster.delete(request)
                 if self.isrender and del_status!=-1:
@@ -303,7 +305,7 @@ class SchedEnv(gym.Env):
             if self.t >= len(self.requests):
                 return False
         return True
-    
+
 
     def reward(self):
         return 1
@@ -312,7 +314,7 @@ class SchedEnv(gym.Env):
         '''
             env take action ,
             return state, reward and done
-        ''' 
+        '''
         action = self._step(action)
         if self.isrender:
             record_dict = {'server': self.cluster.describe(), 'request':self.requests[self.t], 'action': action}
