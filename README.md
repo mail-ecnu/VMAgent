@@ -1,4 +1,5 @@
 # VMAgent
+![](VMA.eps)
 VMAgent is a platform for both virtual machine (VM) scheduling and reinforcement learning (RL).
 It provides the first VM scheudling simulator based on the one month east china data in huawei cloud.
 It includes three scenarios in practical cloud: Recovering, Fading and Expansion.
