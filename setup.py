@@ -7,11 +7,6 @@ setup(name='schedgym',
       author='Jarvis',
       author_email='2667356534@qq.com',
       packages=find_packages(include=['schedgym', 'schedgym*']),
-      entry_points={
-          'console_scripts': [
-              'schedVis = schedgym.render.run:main',
-          ],
-      },
       include_package_data=True,
       zip_safe=False,
       )

@@ -17,8 +17,11 @@ These scenarios also correspond to the challanges in the RL.
 Exploiting the design of RL methods in these secenarios help both the RL and VM scheduling community.
 
 Key Components of VMAgent:
+
 - Simulator: it provides many practical scenarios and flexible configurations to define custom scenarios.
+
 - RL Library: it provides many popular RL methods as the baselines.
+
 - Dashboard: it provides the visualization of schedlueing dynamics on many metrics.
 
 Contents
