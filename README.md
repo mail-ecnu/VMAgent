@@ -70,10 +70,6 @@ It includes three scenarios in practical cloud: Recovering, Fading and Expansion
 Our video is at [video](https://drive.google.com/file/d/14EkVzUnEXM7b8YNJiZ6cxLxhcj5yW4V_/view?usp=sharing).
 Some demonstrations are listed:
 
-<img src="./docs/source/images/rec-small.gif" width="250"><img src="./docs/source/images/rec-large.gif" width="250"><img src="./docs/source/images/exp-large.gif" width="250">
-## Installation
-
-
 ## Docs
 
 We present 
@@ -85,5 +81,5 @@ The format and the stastical analysis of the data are presented in the docs.
 one month east china data in huawei cloud.
 
 ## Visualization
-
+<img src="./docs/source/images/rec-small.gif" width="250"><img src="./docs/source/images/rec-large.gif" width="250"><img src="./docs/source/images/exp-large.gif" width="250">
 For visualization, see the [`render`](./render) directory in detail.

@@ -185,7 +185,7 @@ class Cluster():
             else:
                 for numa in range(2):
                     if usable[numa] == 1:
-                        server.handle(request)
+                        server.handle(request, numa)
                         allo_rate = max(bst_allo_rate, server.allo_rate(numa))
                         if allo_rate > bst_allo_rate:
                             bst_allo_rate = allo_rate
