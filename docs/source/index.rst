@@ -35,7 +35,7 @@ Contents
     
 .. toctree::
     :maxdepth: 2
-    :caption: ScheGym
+    :caption: SchedGym
    
     simulator/scenarios.md
     simulator/gym.md
@@ -61,6 +61,7 @@ Contents
 .. toctree::
     :maxdepth: 2
     :caption: SchedVis
+    :hidden:
 
     visualization/usage.md 
     visualization/example.md 
@@ -68,6 +69,7 @@ Contents
 .. toctree::
     :maxdepth: 3
     :caption: API Documents
+    :hidden:
 
     apidoc/schedgym/modules.rst
     apidoc/vmagent/modules.rst
