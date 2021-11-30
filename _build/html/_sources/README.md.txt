@@ -1,4 +1,4 @@
-# [![VMAgent LOGO](./docs/source/images/logo.svg)](https://vmagent.readthedocs.io/en/latest/)
+# [![VMAgent LOGO](./docs/source/images/logo.svg)](https://VNAgent.readthedocs.io/en/latest/)
 
 VMAgent is a platform for exploiting Reinforcement Learning (RL) on Virtual Machine (VM)Scheduling tasks.
 It contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
