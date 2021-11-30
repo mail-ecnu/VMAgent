@@ -5,7 +5,7 @@
 
 Welcome to VMAgent's documentation!
 ===================================
-.. figure:: ./source/images/logo.svg
+.. figure:: ./images/logo.svg
     :width: 666px
     :align: center
     :alt: VMAgent
