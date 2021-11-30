@@ -5,8 +5,6 @@ vmagent
    :maxdepth: 4
 
    components
-   config
    controllers
    learners
-   train
    utils
