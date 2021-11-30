@@ -56,16 +56,7 @@ Contents
     :caption: Examples
 
     examples/dqn.md
-    examples/sac.md
-
-
-.. toctree::
-    :maxdepth: 3
-    :caption: API Documents
-
-    apidoc/schedgym/modules.rst
-    apidoc/vmagent/modules.rst
-    
+    examples/sac.md    
 
 .. toctree::
     :maxdepth: 2
@@ -73,3 +64,10 @@ Contents
 
     visualization/usage.md 
     visualization/example.md 
+
+.. toctree::
+    :maxdepth: 3
+    :caption: API Documents
+
+    apidoc/schedgym/modules.rst
+    apidoc/vmagent/modules.rst
