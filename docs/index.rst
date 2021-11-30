@@ -17,9 +17,9 @@ These scenarios also correspond to the challanges in the RL.
 Exploiting the design of RL methods in these secenarios help both the RL and VM scheduling community.
 
 Key Components of VMAgent:
-* Simulator: it provides many practical scenarios and flexible configurations to define custom scenarios.
-* RL Library: it provides many popular RL methods as the baselines.
-* Dashboard: it provides the visualization of schedlueing dynamics on many metrics.
+- Simulator: it provides many practical scenarios and flexible configurations to define custom scenarios.
+- RL Library: it provides many popular RL methods as the baselines.
+- Dashboard: it provides the visualization of schedlueing dynamics on many metrics.
 
 Contents
 ----------
@@ -57,9 +57,23 @@ Contents
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :caption: API Documents
 
-    apidoc/schedgym.md 
-    apidoc/vmagent.md
+    apidoc/schedgym/schedgym.rst 
+    apidoc/schedgym/modules.rst
+    apidoc/vmagent/components.rst
+    apidoc/vmagent/config.rst 
+    apidoc/vmagent/controllers.rst
+    apidoc/vmagent/learner.rst
+    apidoc/vmagent/modules.rst
+    apidoc/vmagent/train.rst 
+    apidoc/vmagent/utils.rst
+    
 
+.. toctree::
+    :maxdepth: 2
+    :caption: Visulization
+
+    visualization/usage.md 
+    visualization/example.md 
