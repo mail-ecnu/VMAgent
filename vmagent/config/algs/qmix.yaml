@@ -1,0 +1,3 @@
+mac: 'vectormac'
+learner: 'qmix_learner'
+agent: 'QmixAgent'

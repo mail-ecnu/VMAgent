@@ -1,8 +1,0 @@
-dash==1.21.0
-dash-daq==0.5.0
-dash_bootstrap_components==0.13.0
-dash_bootstrap_templates==0.1.1
-gunicorn>=19.9.0
-numpy>=1.16.2
-pandas>=0.24.2
-plotly~=5.3.0

@@ -1,0 +1,6 @@
+N: 20
+cpu: 40
+mem: 90
+allow_release: True
+growing_nums: 2
+expand_threshold: 0.7

@@ -1,0 +1,3 @@
+mac: 'ppomac'
+learner: 'ppo_learner'
+agent: 'NormalACAgent'

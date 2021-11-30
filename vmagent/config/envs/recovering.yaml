@@ -1,0 +1,4 @@
+N: 20
+cpu: 40
+mem: 90
+allow_release: True

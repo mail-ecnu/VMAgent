@@ -1,4 +1,4 @@
-name: VMAgent
+name: VMAgent-dev
 channels:
   - https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/conda-forge
   - defaults
@@ -49,7 +49,7 @@ dependencies:
   - mkl_random=1.1.1=py37h0da4684_0
   - ncurses=6.1=hf484d3e_1002
   - ninja=1.10.0=hc9558a2_0
-  - numpy=1.18.1=py37h4f9e942_0
+  - numpy=1.16.5
   - numpy-base=1.18.1=py37hde5b4d6_1
   - openssl=1.1.1k=h27cfd23_0
   - pip=20.1.1=pyh9f0ad1d_0
@@ -114,3 +114,9 @@ dependencies:
     - traitlets==5.0.5
     - urllib3==1.25.9
     - wcwidth==0.2.5
+    - dash==1.21.0
+    - dash-daq==0.5.0
+    - dash_bootstrap_components==0.13.0
+    - dash_bootstrap_templates==0.1.1
+    - gunicorn>=19.9.0
+    - plotly~=5.3.0

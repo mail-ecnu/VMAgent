@@ -11,13 +11,11 @@ from learners import REGISTRY as le_REGISTRY
 from components import REGISTRY as mem_REGISTRY
 from runx.logx import logx
 from hashlib import sha1
-import torch
 import pandas as pd
 import pdb
 import time
 import random
 
-print(torch.cuda.is_available())
 from config import Config
 
 DATA_PATH = '../dataset.csv'
@@ -76,9 +74,10 @@ def sample_baselines(envs, step_list, method, args):
 if __name__ == "__main__":
 
     render_path = f'{args.baseline}-{args.N}.p'
+    args.num_process = 1
     envs = SubprocVecEnv([make_env(args.N, args.cpu, args.mem, allow_release=(args.allow_release=='True')) for i in range(args.num_process)])
 
-    step_list = [1213]
+    step_list = [1234]
     results = {}
 
     envs.reset(step_list)

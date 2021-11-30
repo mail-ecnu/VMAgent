@@ -1,0 +1,3 @@
+mac: 'vectormac'
+learner: 'q_learner'
+agent: 'DQNAgent'
