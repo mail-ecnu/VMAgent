@@ -35,3 +35,20 @@ In dedicated cloud, users often buy the servers for a long time and the deletion
 While for public cloud, the deletion requests happen more frequently.
 This brings a high non-stationary challange for the RL scheduler.
 
+## Clustomize Your Scenario
+Our VMAgent provides flexible configurations to customized your own scenarios.
+In the `vmagent/config/envs`, we provide several examples.
+Take the `expand.yml` as an example:
+
+```yaml
+N: 20
+cpu: 40
+mem: 90
+allow_release: True
+double_thr: 10
+```
+It has a cluster with 20 servers and each server has 2 numas.
+Each numa hash 40 cores cpu and 90 GB memory.
+It handles the deletion (allow_release) requests.
+For a request that requires more than 10 cores cpu, it will be distributed on a server's two numas.
+Users are allowed to change the configuration to their own scenarios.

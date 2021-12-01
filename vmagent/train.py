@@ -35,10 +35,10 @@ logpath = './search_'+str(args.learner)+conf.env+'/'+str(args.learner) + \
 logx.initialize(logdir=logpath, coolname=True, tensorboard=True)
 
 
-def make_env(N, cpu, mem, allow_release):
+def make_env(N, cpu, mem, allow_release, double_thr=1e10):
     def _init():
         env = SchedEnv(N, cpu, mem, DATA_PATH, render_path=None,
-                       allow_release=allow_release)
+                       allow_release=allow_release, double_thr=double_thr)
         # env.seed(seed + rank)
         return env
     # set_global_seeds(seed)
@@ -88,11 +88,14 @@ if __name__ == "__main__":
         step_list.append(np.random.randint(1000, 9999))
     my_steps = np.array(step_list)
 
-    # step_list = np.array([1234])
-    # my_steps = step_list.repeat(args.num_process)
+    if args.double_thr is None:
+        double_thr = 1000
+    else:
+        double_thr = args.double_thr
 
     envs = SubprocVecEnv([make_env(args.N, args.cpu, args.mem, allow_release=(
-        args.allow_release == 'True')) for i in range(args.num_process)])
+        args.allow_release == 'True'), double_thr=double_thr) for i in range(args.num_process)])
+
     mac = mac_REGISTRY[args.mac](args)
     print(f'Sampling with {args.mac} for {MAX_EPOCH} epochs; Learn with {args.learner}')
     learner = le_REGISTRY[args.learner](mac, args)
