@@ -2,7 +2,7 @@
 
 ## Supported Data Formats
 
-We support data files in two formats: `Data` or `Row Data` in a single pickle file.
+We support data files in two formats: `Data` or `Raw Data` in a single pickle file.
 
 ## Objects
 
@@ -13,9 +13,9 @@ The structure and necessary fileds of each object are described below.
 | Field | Type | Description |
 | ---- | ---- | ---- |
 | `name` | *`string`* | Scheduling algorithm name |
-| `data` | *`List[Frame]`* (a.k.a *`Row Data`*) |   |
+| `data` | *`List[Frame]`* (a.k.a *`Raw Data`*) |   |
 
-### Row Data
+### Raw Data
 
 ```python
 [
