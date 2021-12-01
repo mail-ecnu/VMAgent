@@ -17,7 +17,7 @@ To gain better understanding of the cpu and memory distribution, we plot the his
 More than 2/3 requests only consumes 1U and less than 2G.
 We also plot the statiscs of the (cpu, mem) request:
 
-![vmtype]((../images/scenarios/vm_type.png))
+![vmtype](../images/scenarios/vm_type.png)
 The 1U1G,1U2G, 2U4G and 4U8G constitues the main body of the requests.
 These distribution information can be helpful in constructing domain knowledge.
 
