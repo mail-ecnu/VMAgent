@@ -2,3 +2,4 @@ N: 5
 cpu: 40 
 mem: 90
 allow_release: False
+double_thr: 32

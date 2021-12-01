@@ -171,7 +171,7 @@ class Cluster():
     def best_fit_action(self, request):
         i = -1
         bst_action = -1
-        bst_allo_rate = 0
+        bst_allo_rate = -1
         for server in self.servers:
             i += 1
             usable = server.usable(request)
@@ -211,7 +211,7 @@ class Cluster():
         res = np.array(usable_list).reshape(-1)
         return res
 
-    def delete(self, request):
+    def delete(self, request): 
         i = 0
         for server in self.servers:
             del_status = server.delete(request)
@@ -219,7 +219,6 @@ class Cluster():
                 return 2*i + del_status
             i += 1
         return -1
-
 
     def reset_status(self, status):
         self.servers = [Server(self.cpu, self.mem) for i in range(self.N)]
@@ -341,6 +340,7 @@ class SchedEnv(gym.Env):
             action = self.cluster.first_fit_action(request)
         elif action == -2:
             action = self.cluster.best_fit_action(request)
+        
         self.cluster.handle(action, request)
         return action
 
