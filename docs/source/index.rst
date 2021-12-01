@@ -18,11 +18,9 @@ Exploiting the design of RL methods in these secenarios help both the RL and VM 
 
 Key Components of VMAgent:
 
-- Simulator: it provides many practical scenarios and flexible configurations to define custom scenarios.
-
-- RL Library: it provides many popular RL methods as the baselines.
-
-- Dashboard: it provides the visualization of schedlueing dynamics on many metrics.
+- SchedGym (Simulator): it provides many practical scenarios and flexible configurations to define custom scenarios.
+- SchedAgent (Algorithms): it provides many popular RL methods as the baselines.
+- SchedVis (Visulization): it provides the visualization of schedlueing dynamics on many metrics.
 
 Contents
 ----------
@@ -42,22 +40,14 @@ Contents
     
 .. toctree::
     :maxdepth: 2
-    :caption: Algorithms
+    :caption: SchedAgent
 
-    algorithms/first(best)-fit.md
+    algorithms/framework.md
     algorithms/dqn.md
     algorithms/a2c.md
     algorithms/ppo.md
     algorithms/sac.md
-    
-
-.. toctree::
-    :maxdepth: 2
-    :caption: Examples
-
-    examples/dqn.md
-    examples/sac.md    
-
+  
 .. toctree::
     :maxdepth: 2
     :caption: SchedVis
@@ -65,6 +55,13 @@ Contents
 
     visualization/usage.md 
     visualization/example.md 
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Examples
+
+    examples/dqn4fading.md
+    examples/sac4recovering.md
 
 .. toctree::
     :maxdepth: 3
