@@ -29,4 +29,5 @@ We adopt First-Fit and Best-Fit as the naive baselines and conduct experiments o
 We conduct fading experiments with 5, 20, 50 servers and each server has 40 cpu and 90 memeory.
 
 
-## Recovering
+### Recovering
+We conduct fading experiments with 5, 20, 50 servers and each server has 40 cpu and 90 memeory.
