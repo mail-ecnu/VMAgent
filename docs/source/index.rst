@@ -55,7 +55,7 @@ Contents
     :hidden:
 
     visualization/usage.md 
-    visualization/example.md 
+    visualization/format.md 
 
 .. toctree::
     :maxdepth: 2
