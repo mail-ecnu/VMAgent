@@ -18,7 +18,7 @@ import random
 
 from config import Config
 
-DATA_PATH = '../dataset.csv'
+DATA_PATH = 'vmagent/data/dataset.csv'
 parser = argparse.ArgumentParser(description='Sched More Servers')
 
 parser.add_argument('--env', type=str)

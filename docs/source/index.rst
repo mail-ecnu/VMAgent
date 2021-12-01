@@ -36,6 +36,7 @@ Contents
     :caption: SchedGym
    
     simulator/scenarios.md
+    simulator/dataset.md
     simulator/gym.md
     
 .. toctree::
