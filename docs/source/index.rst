@@ -26,7 +26,7 @@ Contents
 ----------
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Installation
 
     installation/installation.md
@@ -65,7 +65,7 @@ Contents
     examples/sac4recovering.md
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 2
     :caption: API Documents
     :hidden:
 
