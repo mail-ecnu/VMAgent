@@ -28,7 +28,7 @@ args.lr = conf.lr
 MAX_EPOCH = args.max_epoch
 BATCH_SIZE = args.batch_size
 
-logpath = './search_'+str(args.learner)+conf.env+'/'+str(args.learner) + \
+logpath = '../log/search_'+str(args.learner)+conf.env+'/'+str(args.learner) + \
     str(args.gamma)+'_' + str(args.lr)+'/'
 
 # reward discount
@@ -133,7 +133,8 @@ if __name__ == "__main__":
 
             logx.metric('val', val_metric, x)
 
-            path = f'models/{args.N}server-{x}'
+            path = f'{logpath}/models/{args.N}server-{x}'
+            
 
             if not os.path.exists(path):
                 os.makedirs(path)

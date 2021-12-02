@@ -68,8 +68,10 @@ class PPOLearner:
             ind =  ind.cuda()
         # Calculate estimated Q-Values
 
-        _, action_probs,log_pis, entropy = self.mac.select_actions([[obs, feat], avail])
-        _, ola_action_probs,old_log_pis, old_entropy = self.target_mac.select_actions([[obs, feat], avail])
+        _, action_probs, log_pis, entropy = self.mac.get_act_probs(
+            [[obs, feat], avail])
+        _, ola_action_probs, old_log_pis, old_entropy = self.target_mac.get_act_probs([
+                                                                                      [obs, feat], avail])
 
         ratios = th.exp(log_pis.cuda() - old_log_pis.cuda())
 
@@ -94,7 +96,8 @@ class PPOLearner:
         # Get predicted next-state actions and Q values from target models
 
         with th.no_grad():
-            _, action_probs_next,_, _ = self.mac.select_actions([[next_obs, next_feat], next_avail])
+            _, action_probs_next, _, _ = self.mac.get_act_probs(
+                [[next_obs, next_feat], next_avail])
             Q_next = self.mac.agent.critic([next_obs,next_feat])
             V_next= (action_probs_next.cuda() * Q_next.cuda()).sum(1)
 
@@ -111,10 +114,9 @@ class PPOLearner:
         if  self.learn_cnt / self.args.target_update_interval >= 1.0:
             self._update_targets()
             self.learn_cnt = 0
-
         return {
-            'actor_loss': actor_loss.item(),
-            'critic_loss': critic_loss.item()
+            'actor_loss': actor_loss.mean().item(),
+            'critic_loss': critic_loss.mean().item()
         }
 
     def cuda(self):
