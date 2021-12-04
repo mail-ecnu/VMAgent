@@ -1,5 +1,5 @@
 # Dataset 
-Our VMAgent collects one month virtual machine scheduling data in the east china region in the huawei cloud.
+Our VMAgent collects the **real scheduling data in huawei cloud** for one month.
 The [dataset](https://github.com/mail-ecnu/VMAgent/blob/master/vmagent/data/dataset.csv) is placed in our repository.
 
 ## Statistical Analysis

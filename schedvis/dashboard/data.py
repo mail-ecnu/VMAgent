@@ -8,12 +8,12 @@ from .config import cpu_max, mem_max
 
 
 DEFAULT_DATA_DQN_NAME = 'dqn'
-DEFAULT_DATA_DQN = pickle.load(open('schedgym/render/data/dqn.p', 'rb'))
+DEFAULT_DATA_DQN = pickle.load(open('schedvis/data/dqn.p', 'rb'))
 DEFAULT_DATA_DQN_LEN = len(DEFAULT_DATA_DQN)
 DEFAULT_DATA_DQN_UUID = str(uuid4())
 
 DEFAULT_DATA_FF_NAME = 'firstfit'
-DEFAULT_DATA_FF = pickle.load(open('schedgym/render/data/firstfit.p', 'rb'))
+DEFAULT_DATA_FF = pickle.load(open('schedvis/data/firstfit.p', 'rb'))
 DEFAULT_DATA_FF_LEN = len(DEFAULT_DATA_FF)
 DEFAULT_DATA_FF_UUID = str(uuid4())
 

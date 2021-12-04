@@ -12,7 +12,7 @@ Welcome to VMAgent's documentation!
     :target: https://github.com/mail-ecnu/VMAgent
 
 VMAgent is a platform for exploiting Reinforcement Learning (RL) on Virtual Machine (VM)Scheduling tasks.
-It contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
+It collects one month real scheduling data from **huawei cloud** and contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
 These scenarios also correspond to the challanges in the RL.
 Exploiting the design of RL methods in these secenarios help both the RL and VM scheduling community.
 
