@@ -310,6 +310,9 @@ class SchedEnv(gym.Env):
     def reward(self):
         return 1
 
+    # def reward(self,request):
+    #     return request['cpu']/self.cpu
+
     def step(self, action):
         '''
             env take action ,
