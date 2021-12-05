@@ -33,3 +33,22 @@ The server will be [[c1-c0/2, m1-m0/2],[c2-c0/2, m2-m0/2]].
 If (c0, m0) is a small request and server's first numa is to handle it, then the server will be [[c1-c0, m1-m0],[c2, m2]].
 For the deletion request, the minus above will turn to `+`.
 
+## Interaction Example
+```python
+import numpy as np
+from schedgym.sched_env import SchedEnv
+
+DATA_PATH = 'vmagent/data/dataset.csv'
+env = SchedEnv(5, 40, 90, DATA_PATH, render_path='../test.p',
+                   allow_release=False, double_thr=32)
+MAX_STEP = 1e4
+env.reset(np.random.randint(0, MAX_STEP))
+done = env.termination()
+while not done:
+    feat = env.get_attr('req')
+    obs = env.get_attr('obs')
+    # sample by first fit
+    avail = env.get_attr('avail')
+    action = np.random.choice(np.where(avail == 1)[0])
+    action, next_obs, reward, done = env.step(action)
+```
