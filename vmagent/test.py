@@ -1,20 +1,8 @@
 
 import numpy as np
 from schedgym.sched_env import SchedEnv
-from schedgym.mySubproc_vec_env import SubprocVecEnv
-
-
 
 DATA_PATH = 'vmagent/data/dataset.csv'
-
-def make_env(N, cpu, mem, allow_release, double_thr=1e10):
-    def _init():
-        env = SchedEnv(N, cpu, mem, DATA_PATH, render_path=None,
-                       allow_release=allow_release, double_thr=double_thr)
-        return env
-    return _init
-
-
 
 if __name__ == "__main__":
 
