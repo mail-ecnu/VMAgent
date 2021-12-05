@@ -1,12 +1,9 @@
 from config import Config
 import os
-import copy
 import numpy as np
 from schedgym.sched_env import SchedEnv
 from schedgym.mySubproc_vec_env import SubprocVecEnv
-from utils.rl_utils import linear_decay, time_format
 import argparse
-from components.replay_memory import ReplayMemory
 from controllers import REGISTRY as mac_REGISTRY
 from learners import REGISTRY as le_REGISTRY
 from components import REGISTRY as mem_REGISTRY
@@ -16,7 +13,6 @@ import torch
 import pandas as pd
 import pdb
 import time
-import random
 import csv
 
 
@@ -32,8 +28,7 @@ conf = parser.parse_args()
 args = Config(conf.env, None)
 args.N = conf.N
 args.baseline = conf.baseline
-
-
+args.num_process = 50 
 def make_env(N, cpu, mem, allow_release, double_thr=1e10):
     def _init():
         env = SchedEnv(N, cpu, mem, DATA_PATH, render_path=None,
@@ -85,20 +80,17 @@ def sample_baselines(envs, step_list, method, args):
 
         next_avail = envs.get_attr('avail')
         next_feat = envs.get_attr('req')
-        # print(f'next avial: {next_avail}')
-        # print(f'next feat: {next_feat}')
 
         tot_lenth[alives] += 1
 
 
 if __name__ == "__main__":
-
     render_path = f'{args.baseline}-{args.N}.p'
     envs = SubprocVecEnv([make_env(args.N, args.cpu, args.mem, allow_release=(
         args.allow_release == 'True'), double_thr=args.double_thr) for i in range(args.num_process)])
 
     step_list = []
-    f = csv.reader(open('logs/step_list.csv','r'))
+    f = csv.reader(open('../log/step_list.csv','r'))
     for item in f:
         step_list = item
     for i in range(len(step_list)):
@@ -116,6 +108,7 @@ if __name__ == "__main__":
     envs.reset(step_list[:args.num_process])
 
     for j in range(int(step_list.size/args.num_process)):
+        print(j)
         local_list = step_list[j:j+args.num_process]
         try:
             envs.reset(local_list)
@@ -130,7 +123,7 @@ if __name__ == "__main__":
         # print(f'test_len:{test_len}')
         # print(f'mem_rate:{mem_rate}')
 
-    path = f'logs/{args.baseline}/{conf.env}/{args.N}server/'
+    path = f'../logs/{args.baseline}/{conf.env}/{args.N}server/'
 
     if not os.path.exists(path):
         os.makedirs(path)
