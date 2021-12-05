@@ -82,4 +82,5 @@ one month east china data in huawei cloud.
 
 ## Visualization
 <img src="./docs/source/images/rec-small.gif" width="250"><img src="./docs/source/images/rec-large.gif" width="250"><img src="./docs/source/images/exp-large.gif" width="250">
-For visualization, see the [`render`](./render) directory in detail.
+
+For visualization, see the [`schedvis`](./schedvis) directory in detail.
