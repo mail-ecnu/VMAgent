@@ -19,7 +19,15 @@ We also plot the statiscs of the (cpu, mem) request:
 
 ![vmtype](../images/scenarios/vm_type.png)
 The 1U1G,1U2G, 2U4G and 4U8G constitues the main body of the requests.
-These distribution information can be helpful in constructing domain knowledge.
+
+We also visualize the dynamic of virtual machine during the month: 
+![alives](../images/scenarios/alive_vms.png)
+Although there exists deletion request, the number of alive virtual machines increses from 0 to more than 8000.
+It should be noted that, even in the one month, the VM's dynamic is highly related to the time.
+`Increase, Flux, Increase, Flux` happens through the one month.
+![cpu-mem](../images/scenarios/cpu_mem.png)
+We also visualize the allocated cpu and memory dynamic above.
+They can be helpful in constructing domain knowledge.
 
 ## Naive Baselines performance
 Another way to describe the dataset is measuring performance of naive baselines in the dataset.

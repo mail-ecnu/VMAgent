@@ -6,7 +6,7 @@ from gym import spaces
 import json
 
 
-def getData(path, double_thr=1e10, smallFilter=True):
+def getData(path, double_thr=1e10, smallFilter=False):
     '''
     csv_data: input a DataFrame Object
     return: A list like [{'uuid':'',...},{},...]
@@ -279,15 +279,17 @@ class SchedEnv(gym.Env):
         '''
             check if the env terminated
         '''
-        if self.t >= len(self.requests):
-            return True
-        request = self.requests[self.t]
-        if np.array(self.cluster.check_usable(request)).sum() == 0:
-            if self.isrender:
-                import pickle
-                pickle.dump( self.render_list, open( self.render_path, "wb" ) )
-            return True
-        return False
+        is_term = False
+        if self.t >= len(self.requests)-1:
+            is_term = True
+        else:
+            request = self.requests[self.t]
+            if np.array(self.cluster.check_usable(request)).sum() == 0:
+                is_term = True
+        if is_term and self.isrender:
+            import pickle
+            pickle.dump(self.render_list, open(self.render_path, "wb"))
+        return is_term
 
     def handle_delete(self,):
         '''
