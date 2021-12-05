@@ -60,13 +60,6 @@ Contents
 
 .. toctree::
     :maxdepth: 2
-    :caption: Examples
-
-    examples/dqn4fading.md
-    examples/sac4recovering.md
-
-.. toctree::
-    :maxdepth: 2
     :caption: API Documents
     :hidden:
 
