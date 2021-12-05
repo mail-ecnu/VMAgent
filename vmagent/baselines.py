@@ -37,7 +37,7 @@ args.baseline = conf.baseline
 def make_env(N, cpu, mem, allow_release, double_thr=1e10):
     def _init():
         env = SchedEnv(N, cpu, mem, DATA_PATH, render_path=None,
-                       allow_release=allow_release, double_thr=args.double_thr)
+                       allow_release=allow_release, double_thr=double_thr)
         # env.seed(seed + rank)
         return env
     # set_global_seeds(seed)

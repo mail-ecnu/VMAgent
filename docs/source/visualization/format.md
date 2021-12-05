@@ -49,6 +49,6 @@ The structure and necessary fileds of each object are described below.
 | ---- | ---- | ---- |
 | `cpu` | *`int`* |  Required CPU  |
 | `mem` | *`int`* |  Required memory  |
-| `type` | *`int`* | `1` for `allocation` and `0` for `release` |  
+| `type` | *`int`* | `0` for `allocation` and `1` for `release` |  
 | `is_double` | *`bool`* or *`int`* | Whether the request is a double-numa request or not |
 

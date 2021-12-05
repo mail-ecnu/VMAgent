@@ -8,12 +8,12 @@ from .config import cpu_max, mem_max
 
 
 DEFAULT_DATA_DQN_NAME = 'dqn'
-DEFAULT_DATA_DQN = pickle.load(open('schedgym/render/data/dqn.p', 'rb'))
+DEFAULT_DATA_DQN = pickle.load(open('test.p', 'rb'))
 DEFAULT_DATA_DQN_LEN = len(DEFAULT_DATA_DQN)
 DEFAULT_DATA_DQN_UUID = str(uuid4())
 
 DEFAULT_DATA_FF_NAME = 'firstfit'
-DEFAULT_DATA_FF = pickle.load(open('schedgym/render/data/firstfit.p', 'rb'))
+DEFAULT_DATA_FF = pickle.load(open('test.p', 'rb'))
 DEFAULT_DATA_FF_LEN = len(DEFAULT_DATA_FF)
 DEFAULT_DATA_FF_UUID = str(uuid4())
 
@@ -59,7 +59,7 @@ def score_data_helper(df):
     current_score = 0
     scores = [current_score]
     for req in df['request_type']:
-        if req:
+        if req == 0:
             current_score += 1
         else:
             current_score -= 1
@@ -68,6 +68,6 @@ def score_data_helper(df):
 
 
 if __name__ == '__main__':
-    test_df = format_data(pickle.load(open('../data/dqn.p', 'rb')))
+    test_df = format_data(pickle.load(open('test.p', 'rb')))
     from pprint import pprint
     pprint(test_df)

@@ -3,6 +3,9 @@ A2C[1] is a popular Actor-Critic reinforcement learning algorithm which uses the
 In our VMAgent, we implement the A2C with advantage function.
 The criitic out the q value for each server (NUMA) and the actor out probility of actions.
 
+## Hyper-Parameters
+xxx 
+
 ## Example
 Train A2C in fading environment with 5 servers, and parameters gamma=0.99 learning_rate=0.003:
 ```

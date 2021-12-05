@@ -1,24 +1,23 @@
 # [![VMAgent LOGO](./docs/source/images/logo.svg)](https://vmagent.readthedocs.io/en/latest/)
 
 VMAgent is a platform for exploiting Reinforcement Learning (RL) on Virtual Machine (VM)Scheduling tasks.
-It contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
+It collects one month real scheduling data from **huawei cloud** and contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
 These scenarios also correspond to the challanges in the RL.
 Exploiting the design of RL methods in these secenarios help both the RL and VM scheduling community.
 
 Key Components of VMAgent:
-* Simulator: it provides many practical scenarios and flexible configurations to define custom scenarios.
-* RL Library: it provides many popular RL methods as the baselines.
-* Dashboard: it provides the visualization of schedlueing dynamics on many metrics.
+* SchedGym (Simulator): it provides many practical scenarios and flexible configurations to define custom scenarios.
+* SchedAgent (Algorithms): it provides many popular RL methods as the baselines.
+* SchedVis (Visulization): it provides the visualization of schedlueing dynamics on many metrics.
 ## Scenarios and Baselines
 
 The VMAgent provides multiple practical scenarios: 
-| Scenario     | Allow-Deletion | Allow-Expansion | Allow-MultiNuma | Server Num |
-|--------------|----------------|-----------------|-----------------|------------|
-| Fading       | False          | False           | False           | Small      |
-| Recovering   | True           | False           | False           | Small      |
-| Expanding    | True           | True            | False           | Small      |
-| Recovering-L | True           | False           | False           | Large      |
-| Fading-N     | False          | False           | True            | Small      |
+| Scenario     | Allow-Deletion | Allow-Expansion | Server Num |
+|--------------|----------------|-----------------|------------|
+| Fading       | False          | False           | Small      |
+| Recovering   | True           | False           | Small      |
+| Expanding    | True           | True            | Small      |
+| Recovering-L | True           | False           | Large      |
 
 Researchers can also flexibly customized their scenarios in the `vmagent/config/` folder.
 
@@ -72,7 +71,8 @@ Some demonstrations are listed:
 
 ## Docs
 
-We present 
+For more information of our VMAgent, we refer the readers to the [document](https://vmagent.readthedocs.io/en/latest/).
+It describes the detail of SchedGym, SchedAgent and SchedVis.
 
 ## Data 
 
