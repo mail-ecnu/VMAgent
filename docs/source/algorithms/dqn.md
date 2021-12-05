@@ -10,5 +10,7 @@ python vmagent/train.py --env fading --alg dqn --N 5 --gamma 0.99 --lr 0.003
 ```
 
 [1] Mnih, Volodymyr, et al. "Human-level control through deep reinforcement learning." nature 518.7540 (2015): 529-533.
+
 [2] Van Hasselt, Hado, Arthur Guez, and David Silver. "Deep reinforcement learning with double q-learning." Proceedings of the AAAI conference on artificial intelligence. Vol. 30. No. 1. 2016.
+
 [3] Sewak, Mohit. "Deep q network (dqn), double dqn, and dueling dqn." Deep Reinforcement Learning. Springer, Singapore, 2019. 95-108.
