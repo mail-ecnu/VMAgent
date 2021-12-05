@@ -3,6 +3,9 @@
 ## conda env
 * `conda activate VMAgent`
 
+## Hyper-Parameters
+xxx 
+
 ## Example
 Train A2C in fading environment with 5 servers, and parameters gamma=0.99 learning_rate=0.003:
 ```

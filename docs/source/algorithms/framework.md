@@ -1,6 +1,7 @@
 # Framework 
 Our VMAgent's framework is mainly based on the [pymarl](https://github.com/oxwhirl/pymarl).
 It consists `controller`, `learner`, `components`, `modules` and `utils`.
+![vmdiag](../images/vmdiag.png)
 
 ## Controller
 The controller plays the role on output actions for sampling.
