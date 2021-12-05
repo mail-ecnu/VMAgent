@@ -62,7 +62,7 @@ def sample_baselines(envs, step_list, method, args):
         if all(~alives):
             last_obs = np.array(last_obs)
             remains = np.sum(last_obs, axis=2).sum(1)
-            return tot_lenth.mean(), (2*args.cpu*args.num_process-remains[0][0])/(2*args.cpu*args.num_process)
+            return tot_lenth.mean(), (2*args.cpu*args.num_process-remains[0][0])/(2*args.cpu*args.num_process),(2*args.mem*args.num_process-remains[0][1])/(2*args.mem*args.num_process)
         avail = envs.get_attr('avail')
         feat = envs.get_attr('req')
         obs = envs.get_attr('obs')
@@ -75,7 +75,7 @@ def sample_baselines(envs, step_list, method, args):
         action, next_obs, reward, done = envs.step(action)
         last_obs = next_obs
         
-        print(f'next obs: {next_obs},')
+        # print(f'next obs: {next_obs},')
         
         if (next_obs<0).sum():
             import pdb; pdb.set_trace()
@@ -85,8 +85,8 @@ def sample_baselines(envs, step_list, method, args):
 
         next_avail = envs.get_attr('avail')
         next_feat = envs.get_attr('req')
-        print(f'next avial: {next_avail}')
-        print(f'next feat: {next_feat}')
+        # print(f'next avial: {next_avail}')
+        # print(f'next feat: {next_feat}')
 
         tot_lenth[alives] += 1
 
@@ -98,37 +98,49 @@ if __name__ == "__main__":
         args.allow_release == 'True'), double_thr=args.double_thr) for i in range(args.num_process)])
 
     step_list = []
-    for i in range(1000):
-        step_list.append(np.random.randint(0, 16000))
+    f = csv.reader(open('logs/step_list.csv','r'))
+    for item in f:
+        step_list = item
+    for i in range(len(step_list)):
+        step_list[i] = int(step_list[i])
     step_list = np.array(step_list)
+    # for i in range(1000):
+    #     step_list.append(np.random.randint(0, 16000))
+    # step_list = np.array(step_list)
 
     results = []
     cpu_rates = []
+    mem_rates = []
 
+    print(step_list[:args.num_process])
     envs.reset(step_list[:args.num_process])
 
-    for j in range(int(1000/args.num_process)):
+    for j in range(int(step_list.size/args.num_process)):
         local_list = step_list[j:j+args.num_process]
         try:
             envs.reset(local_list)
         except:
             import pdb; pdb.set_trace()
-        test_len, cpu_rate = sample_baselines(
+        test_len, cpu_rate, mem_rate = sample_baselines(
             envs, local_list, args.baseline, args)
         cpu_rates.append(cpu_rate)
         results.append(test_len)
-        print(f'cpu_rate:{cpu_rate}')
-        print(f'test_len:{test_len}')
+        mem_rates.append(mem_rate)
+        # print(f'cpu_rate:{cpu_rate}')
+        # print(f'test_len:{test_len}')
+        # print(f'mem_rate:{mem_rate}')
 
-    path = f'chc_logs/{args.baseline}/{args.N}server/results.csv'
+    path = f'logs/{args.baseline}/{conf.env}/{args.N}server/'
 
     if not os.path.exists(path):
         os.makedirs(path)
 
-    with open(path, 'w')as f:
+    results = np.array(results)
+    cpu_rates = np.array(cpu_rates)
+    mem_rates = np.array(mem_rates) 
+    data = [[results.mean(),results.std()],[cpu_rates.mean(),cpu_rates.std()],[mem_rates.mean(),mem_rates.std()]]
+
+    with open(path+'/results.csv','w')as f:
         f_csv = csv.writer(f)
         f_csv.writerow(step_list)
-        f_csv.writerows(results.mean(), results.std())
-        f_csv.writerows(cpu_rates.mean(), cpu_rates.std())
-
-    print(results, cpu_rates)
+        f_csv.writerow(data)

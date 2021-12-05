@@ -1,7 +1,7 @@
 # A2C
-
-## conda env
-* `conda activate VMAgent`
+A2C[1] is a popular Actor-Critic reinforcement learning algorithm which uses the advantage function instead of the original return in the critical network.
+In our VMAgent, we implement the A2C with advantage function.
+The criitic out the q value for each server (NUMA) and the actor out probility of actions.
 
 ## Example
 Train A2C in fading environment with 5 servers, and parameters gamma=0.99 learning_rate=0.003:
@@ -9,11 +9,4 @@ Train A2C in fading environment with 5 servers, and parameters gamma=0.99 learni
 python vmagent/train.py --env fading --alg a2c --N 5 --gamma 0.99 --lr 0.003
 ```
 
-Train A2C in recovering environment with 5 servers, and parameters gamma=0.99 learning_rate=0.003:
-```
-python vmagent/train.py --env recovering --alg a2c  --N 5 --gamma 0.99 --lr 0.003
-```
-
-## Visualization
-
-For visualization, see the [`render`](./render) directory in detail.
+[1] Schulman J, Moritz P, Levine S, et al. High-dimensional continuous control using generalized advantage estimation[J]. arXiv preprint arXiv:1506.02438, 2015.
