@@ -34,10 +34,9 @@ The ‘+1’ reward makes a difficulty on understand the impact of large request
 Transition Function
 -------------------
 
-When a server handle a creation request (c0, m0), it will allocate (c0, mo) resource for the request. Specifically, if
-the server is [[c1,m1], [c2,m2]] and (c0, m0) is a large creation request. The server will be [[c1-c0/2,
-m1-m0/2],[c2-c0/2, m2-m0/2]]. If (c0, m0) is a small request and server’s first numa is to handle it, then the server
-will be [[c1-c0, m1-m0],[c2, m2]]. For the deletion request, the minus above will turn to ``+``.
+When a server handle a creation request :math:`(c_0, m_0)`, it will allocate :math:`(c_0, m_0)`` resource for the request. Specifically, if
+the server is :math:`[[c_1,m_1], [c_2,m_2]]`` and :math:`(c_0, m_0)`` is a large creation request. The server will be :math:`[[\frac{c_1-c_0}{2}, \frac{m_1-m_0}{2}],[\frac{c_2-c_0}{2}, \frac{m_2-m_0}{2}]]`. If :math:`(c_0, m_0)`` is a small request and server’s first numa is to handle it, then the server
+will be :math:`[[c_1-c_0, m_1-m_0],[c_2, m_2]]`. For the deletion request, the minus above will turn to add.
 
 Interaction Example
 -------------------
