@@ -30,33 +30,33 @@ Contents
     :maxdepth: 1
     :caption: Installation
 
-    installation/installation.md
+    installation/installation.rst
     
 .. toctree::
     :maxdepth: 2
     :caption: SchedGym
    
-    simulator/scenarios.md
-    simulator/dataset.md
-    simulator/gym.md
+    simulator/scenarios.rst
+    simulator/dataset.rst
+    simulator/gym.rst
     
 .. toctree::
     :maxdepth: 2
     :caption: SchedAgent
 
-    algorithms/framework.md
-    algorithms/dqn.md
-    algorithms/a2c.md
-    algorithms/ppo.md
-    algorithms/sac.md
+    algorithms/framework.rst
+    algorithms/dqn.rst
+    algorithms/a2c.rst
+    algorithms/ppo.rst
+    algorithms/sac.rst
   
 .. toctree::
     :maxdepth: 2
     :caption: SchedVis
     :hidden:
 
-    visualization/usage.md 
-    visualization/format.md 
+    visualization/usage.rst 
+    visualization/format.rst 
 
 .. toctree::
     :maxdepth: 2

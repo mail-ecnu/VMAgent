@@ -12,8 +12,8 @@ The structure and necessary fileds of each object are described below.
 
 | Field | Type | Description |
 | ---- | ---- | ---- |
-| `name` | *`string`* | Scheduling algorithm name |
-| `data` | *`List[Frame]`* (a.k.a *`Raw Data`*) |   |
+| `name` | `string` | Scheduling algorithm name |
+| `data` | `List[Frame]` (a.k.a `Raw Data`) |   |
 
 ### Raw Data
 
@@ -30,9 +30,9 @@ The structure and necessary fileds of each object are described below.
 
 | Field | Type | Description |
 | ---- | ---- | ---- |
-| `server` | *`List[Server]`* | The status of each server at the current time. |
-| `request` | *`Request`* |  The info of the request at the current time. |
-| `action` | *`int`* | The resource id to which the current request is assigned, <br> which is calculated by `server id * 2 + numa id`. |
+| `server` | `List[Server]` | The status of each server at the current time. |
+| `request` | `Request` |  The info of the request at the current time. |
+| `action` | `int` | The resource id to which the current request is assigned, <br> which is calculated by `server id * 2 + numa id`. |
 
 ### Server
 
@@ -47,8 +47,8 @@ The structure and necessary fileds of each object are described below.
 
 | Field | Type | Description |
 | ---- | ---- | ---- |
-| `cpu` | *`int`* |  Required CPU  |
-| `mem` | *`int`* |  Required memory  |
-| `type` | *`int`* | `0` for `allocation` and `1` for `release` |  
-| `is_double` | *`bool`* or *`int`* | Whether the request is a double-numa request or not |
+| `cpu` | `int` |  Required CPU  |
+| `mem` | `int` |  Required memory  |
+| `type` | `int` | `0` for `allocation` and `1` for `release` |  
+| `is_double` | `bool` or `int` | Whether the request is a double-numa request or not |
 

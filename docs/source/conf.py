@@ -36,8 +36,8 @@ extensions = [
     'recommonmark',
     'sphinx_markdown_tables', 
     'sphinx.ext.autodoc', 
-    'sphinx.ext.viewcode'
-
+    'sphinx.ext.viewcode',
+    'sphinx.ext.mathjax'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -63,5 +63,5 @@ html_static_path = ['_static']
 source_suffix = {
     '.rst': 'restructuredtext',
     '.txt': 'restructuredtext',
-    '.md': 'markdown',
+    # '.md': 'markdown',
 }
