@@ -4,6 +4,21 @@ Dataset
 Our VMAgent collects the **real scheduling data in huawei cloud** for one month. The
 `dataset <https://github.com/mail-ecnu/VMAgent/blob/master/vmagent/data/dataset.csv>`__ is placed in our repository.
 
+Data Format
+--------------------
+
+The data format is concluded below 
+
+==========    ==================================== ===============================================
+Field         Type                                 Description
+==========    ==================================== ===============================================
+``vmid``      ``int``                              The virtual machine ID
+``cpu``       ``int``                              Number of CPU cores
+``memory``    ``int``                              Number of Memory GBs
+``time``      ``int``                              Relative time in seconds  
+``type``      ``int``                              0 denotes creation while 1 denotes deleteion
+==========    ==================================== ===============================================
+
 Statistical Analysis
 --------------------
 
