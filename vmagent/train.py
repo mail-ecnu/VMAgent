@@ -125,7 +125,6 @@ if __name__ == "__main__":
             envs.reset(my_steps)
             val_return, val_lenth = run(
                 envs, my_steps, mac, mem, learner, 0, args)
-            mem.clean()
             val_metric = {
                 'tot_reward': val_return.mean(),
                 'tot_len': val_lenth.mean(),
