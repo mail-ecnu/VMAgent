@@ -55,11 +55,9 @@ class ReplayMemory:
                 return i
 
     def sample(self, ori_batch_size):
-        # import pdb;pdb.set_trace()
-        # batch_size = self.anneal_bs(ori_batch_size, 4) * ori_batch_size
-        # if batch_size > self.__len__():
-        #     batch_size = self.__len__()//ori_batch_size * ori_batch_size
         batch_size = ori_batch_size
+        if batch_size > self.__len__():
+            batch_size = self.__len__()
         idxs = np.array(random.sample(range(self.__len__()), batch_size))
         res = {}
         try:
