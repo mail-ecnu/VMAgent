@@ -14,7 +14,7 @@ from hashlib import sha1
 import time
 
 
-DATA_PATH = 'vmagent/data/dataset.csv'
+DATA_PATH = 'vmagent/data/Huawei-East-1.csv'
 
 parser = argparse.ArgumentParser(description='Sched More Servers')
 parser.add_argument('--env', type=str)

@@ -29,12 +29,6 @@ It includes FirstFit, BestFit, DQN, PPO, A2C and SAC.
 More baselines is coming.
 ## Installation 
 
-### Install from PyPI
-
-TBA
-
-### Install from Source
-
 ```
 git clone git@github.com:mail-ecnu/VMAgent.git
 cd VMAgent

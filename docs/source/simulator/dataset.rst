@@ -1,7 +1,7 @@
 Dataset
 =======
 
-VMAgent utilizes one month real VM scheduling dataset called [*Huawei-East-1*](https://vmagent.readthedocs.io/en/latest/simulator/dataset.html) from [**HUAWEI Cloud**](https://www.huaweicloud.com).
+VMAgent utilizes one month real VM scheduling dataset called `Huawei-East-1 <https://vmagent.readthedocs.io/en/latest/simulator/dataset.html>`__ from `HUAWEI Cloud <https://www.huaweicloud.com>`__.
 The `dataset <https://github.com/mail-ecnu/VMAgent/blob/master/vmagent/data/dataset.csv>`__ is placed in our repository.
 
 Data Format
