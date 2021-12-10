@@ -1,11 +1,13 @@
 # [![VMAgent LOGO](./docs/source/images/logo.svg)](https://vmagent.readthedocs.io/en/latest/)
 
-VMAgent is a platform for exploiting Reinforcement Learning (RL) on Virtual Machine (VM)Scheduling tasks.
-It collects one month real scheduling data from **huawei cloud** and contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
+VMAgent is a platform for exploiting Reinforcement Learning (RL) on Virtual Machine (VM) scheduling tasks.
+It collects one month real scheduling data from [**HUAWEI Cloud**](https://www.huaweicloud.com) and contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
 These scenarios also correspond to the challanges in the RL.
-Exploiting the design of RL methods in these secenarios help both the RL and VM scheduling community.
+Exploiting the design of RL methods in these secenarios help both the RL and VM scheduling communities.
+More details about VMagent can be found in our paper [*VMAgent: Scheduling Simulator for Reinforcement Learning*](https://arxiv.org/abs/2112.04785).
+Our another paper [*Learning to Schedule Multi-NUMA Virtual Machines via Reinforcement Learning*](https://www.sciencedirect.com/science/article/abs/pii/S0031320321004349) has employed this VMAgent simultor to design RL-based VM scheduling algorithms.
 
-Key Components of VMAgent:
+**Key Components of VMAgent**:
 * SchedGym (Simulator): it provides many practical scenarios and flexible configurations to define custom scenarios.
 * SchedAgent (Algorithms): it provides many popular RL methods as the baselines.
 * SchedVis (Visulization): it provides the visualization of schedlueing dynamics on many metrics.
@@ -64,7 +66,7 @@ Then
 python train.py --env=fading --alg=dqn
 ```
 
-It provides the first VM scheudling simulator based on the one month east china data in huawei cloud.
+It provides the first VM scheudling simulator based on the one month east china data in **HUAWEI Cloud**.
 It includes three scenarios in practical cloud: Recovering, Fading and Expansion.
 Our video is at [video](https://drive.google.com/file/d/14EkVzUnEXM7b8YNJiZ6cxLxhcj5yW4V_/view?usp=sharing).
 Some demonstrations are listed:
