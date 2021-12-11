@@ -1,8 +1,8 @@
 # [![VMAgent LOGO](./docs/source/images/logo.svg)](https://vmagent.readthedocs.io/en/latest/)
 
 **VMAgent** is a platform for exploiting Reinforcement Learning (RL) on Virtual Machine (VM) scheduling tasks.
-It is developed by the [Multi-Agent Artificial Intelligence Lab (MAIL)](https://mail-ecnu.cn) in East China Normal University and [Algorithm Innovation Lab](https://www.huaweicloud.com/lab/algorithm/home.html) in Huawei Cloud.
-VMAgent is constructed based on one month real VM scheduling dataset called [*Huawei-East-1*](https://vmagent.readthedocs.io/en/latest/simulator/dataset.html) from [**HUAWEI Cloud**](https://www.huaweicloud.com) and it contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
+It is developed by the [Multi-Agent Artificial Intelligence Lab (MAIL)](https://mail-ecnu.cn) in East China Normal University and [Algorithm Innovation Lab](https://www.huaweicloud.com/lab/algorithm/home.html) in [**HUAWEI Cloud**](https://www.huaweicloud.com).
+VMAgent is constructed based on one month real VM scheduling dataset called [*Huawei-East-1*](https://vmagent.readthedocs.io/en/latest/simulator/dataset.html) from HUAWEI Cloud and it contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
 These scenarios also correspond to the challanges in the RL.
 Exploiting the design of RL methods in these secenarios help both the RL and VM scheduling communities.
 To emphasis, more details about VMAgent can be found in our paper [*VMAgent: Scheduling Simulator for Reinforcement Learning*](https://arxiv.org/abs/2112.04785).
