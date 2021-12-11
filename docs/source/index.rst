@@ -28,12 +28,14 @@ Contents
 
 .. toctree::
     :maxdepth: 1
+    :hidden: 
     :caption: Installation
 
     installation/installation.rst
     
 .. toctree::
     :maxdepth: 2
+    :hidden: 
     :caption: SchedGym
    
     simulator/scenarios.rst
@@ -42,6 +44,7 @@ Contents
     
 .. toctree::
     :maxdepth: 2
+    :hidden: 
     :caption: SchedAgent
 
     algorithms/framework.rst
@@ -52,16 +55,17 @@ Contents
   
 .. toctree::
     :maxdepth: 2
-    :caption: SchedVis
     :hidden:
+    :caption: SchedVis
+    
 
     visualization/usage.rst 
     visualization/format.rst 
 
 .. toctree::
     :maxdepth: 2
-    :caption: API Documents
     :hidden:
+    :caption: API Documents
 
     apidoc/schedgym/modules.rst
     apidoc/vmagent/modules.rst
