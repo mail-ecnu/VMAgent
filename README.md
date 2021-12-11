@@ -1,4 +1,9 @@
 # [![VMAgent LOGO](./docs/source/images/logo.svg)](https://vmagent.readthedocs.io/en/latest/)
+[![GitHub license](https://img.shields.io/github/license/mail-ecnu/VMAgent)](https://github.com/mail-ecnu/VMAgent/blob/master/LICENSE)
+![Read the Docs](https://img.shields.io/readthedocs/vmagent)
+[![GitHub issues](https://img.shields.io/github/issues/mail-ecnu/VMAgent)](https://github.com/mail-ecnu/VMAgent/issues)
+[![GitHub forks](https://img.shields.io/github/forks/mail-ecnu/VMAgent)](https://github.com/mail-ecnu/VMAgent/network)
+[![GitHub stars](https://img.shields.io/github/stars/mail-ecnu/VMAgent)](https://github.com/mail-ecnu/VMAgent/stargazers)
 
 **VMAgent** is a platform for exploiting Reinforcement Learning (RL) on Virtual Machine (VM) scheduling tasks.
 VMAgent is constructed based on one month real VM scheduling dataset called [*Huawei-East-1*](https://vmagent.readthedocs.io/en/latest/simulator/dataset.html) from [**HUAWEI Cloud**](https://www.huaweicloud.com) and it contains multiple practicle VM scheduling scenarios (such as Fading, Rcovering, etc).
