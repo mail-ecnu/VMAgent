@@ -22,9 +22,6 @@ Key Components of VMAgent:
 - SchedAgent (Algorithms): it provides many popular RL methods as the baselines.
 - SchedVis (Visulization): it provides the visualization of schedlueing dynamics on many metrics.
 
-Contents
-----------
-
 .. toctree::
     :maxdepth: 1
     :hidden: 
