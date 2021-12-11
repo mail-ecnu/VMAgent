@@ -28,7 +28,6 @@ Key Components of VMAgent:
     :caption: Installation
 
     installation/installation.rst
-    
 .. toctree::
     :maxdepth: 2
     :hidden: 
@@ -37,7 +36,6 @@ Key Components of VMAgent:
     simulator/scenarios.rst
     simulator/dataset.rst
     simulator/gym.rst
-    
 .. toctree::
     :maxdepth: 2
     :hidden: 
@@ -48,16 +46,13 @@ Key Components of VMAgent:
     algorithms/a2c.rst
     algorithms/ppo.rst
     algorithms/sac.rst
-  
 .. toctree::
     :maxdepth: 2
     :hidden:
     :caption: SchedVis
     
-
     visualization/usage.rst 
-    visualization/format.rst 
-
+    visualization/format.rst
 .. toctree::
     :maxdepth: 2
     :hidden:
