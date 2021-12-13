@@ -36,7 +36,7 @@ More baselines is coming.
 ## Installation 
 
 ```
-git clone git@github.com:mail-ecnu/VMAgent.git
+git clone https://github.com/mail-ecnu/VMAgent.git
 cd VMAgent
 conda env create -f conda_env.yml
 conda activate VMAgent-dev
