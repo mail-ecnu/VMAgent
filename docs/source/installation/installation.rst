@@ -8,7 +8,7 @@ First clone our git repo:
 
 .. code:: bash
 
-   git clone git@github.com:mail-ecnu/VMAgent.git
+   git clone https://github.com/mail-ecnu/VMAgent.git
    cd VMAgent
 
 Then create the virtual environment to satisfy dependency with conda:
