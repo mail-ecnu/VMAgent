@@ -11,12 +11,12 @@ from .config import cpu_max, mem_max
 
 DEFAULT_TEST_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'data', 'test.p')
 DEFAULT_DATA_DQN_NAME = 'dqn'
-DEFAULT_DATA_DQN = pickle.load(open(DEFAULT_TEST_FILE))
+DEFAULT_DATA_DQN = pickle.load(open(DEFAULT_TEST_FILE, 'rb'))
 DEFAULT_DATA_DQN_LEN = len(DEFAULT_DATA_DQN)
 DEFAULT_DATA_DQN_UUID = str(uuid4())
 
 DEFAULT_DATA_FF_NAME = 'firstfit'
-DEFAULT_DATA_FF = pickle.load(open(DEFAULT_TEST_FILE))
+DEFAULT_DATA_FF = pickle.load(open(DEFAULT_TEST_FILE, 'rb'))
 DEFAULT_DATA_FF_LEN = len(DEFAULT_DATA_FF)
 DEFAULT_DATA_FF_UUID = str(uuid4())
 
