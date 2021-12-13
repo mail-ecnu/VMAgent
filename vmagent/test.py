@@ -2,7 +2,7 @@
 import numpy as np
 from schedgym.sched_env import SchedEnv
 
-DATA_PATH = 'vmagent/data/dataset.csv'
+DATA_PATH = 'vmagent/data/Huawei-East-1.csv'
 
 if __name__ == "__main__":
 

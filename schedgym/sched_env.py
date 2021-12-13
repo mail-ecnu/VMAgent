@@ -70,6 +70,8 @@ class Server():
         '''
 
         self.allocate(request, numa=numa)
+        assert self.remain_cpu >= [0,0], "remain cpu should be positive"
+        assert self.remain_mem >= [0,0], "remain mem should be positive"
         return True
 
     def allo_rate(self, numa):

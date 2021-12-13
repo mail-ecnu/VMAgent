@@ -23,8 +23,11 @@ parser.add_argument('--gamma', type=float)
 parser.add_argument('--lr', type=float)
 conf = parser.parse_args()
 args = Config(conf.env, conf.alg)
-args.gamma = conf.gamma
-args.lr = conf.lr
+if conf.gamma is not None:
+    args.gamma = conf.gamma 
+if conf.lr is not None: 
+    args.lr = conf.lr
+
 MAX_EPOCH = args.max_epoch
 BATCH_SIZE = args.batch_size
 

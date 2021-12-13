@@ -63,7 +63,7 @@ agent: 'DQNAgent'
 ```
 Then 
 ```sh
-python train.py --env=fading --alg=dqn
+python vmagent/train.py --env=fading --alg=dqn
 ```
 
 It provides the first VM scheudling simulator based on the one month east china data in **HUAWEI Cloud**.
