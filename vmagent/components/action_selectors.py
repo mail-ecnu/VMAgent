@@ -40,10 +40,9 @@ class NormalACActionSelector():
 
     def select_action(self, agent_outputs, avail_actions):
         # agent_outputs：the output of the ActorNetwork after softmax
-        softmax = nn.Softmax(dim=-1)
-        action_probs = softmax(agent_outputs)
+        action_probs = (agent_outputs-agent_outputs.min()) / (agent_outputs.max()-agent_outputs.min())
+        # print(action_probs)
         dist = Categorical(action_probs)
-
         actions = dist.sample()
         z = (action_probs == 0.0).float() * 1e-8
         log_action_probabilities = th.log(action_probs + z)
@@ -56,8 +55,7 @@ class PPOActionSelector():
 
     def select_action(self, agent_outputs, avail_actions):
         # agent_outputs：the output of the ActorNetwork after softmax
-        softmax = nn.Softmax(dim=-1)
-        action_probs = softmax(agent_outputs)
+        action_probs = (agent_outputs-agent_outputs.min()) / (agent_outputs.max()-agent_outputs.min())
         dist = Categorical(action_probs)
         actions = dist.sample()
         log_action_probabilities = dist.log_prob(actions)

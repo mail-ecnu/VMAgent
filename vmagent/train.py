@@ -12,9 +12,10 @@ from components import REGISTRY as mem_REGISTRY
 from runx.logx import logx
 from hashlib import sha1
 import time
+import csv
 
 
-DATA_PATH = 'vmagent/data/dataset.csv'
+DATA_PATH = 'data/dataset.csv'
 
 parser = argparse.ArgumentParser(description='Sched More Servers')
 parser.add_argument('--env', type=str)
@@ -28,7 +29,7 @@ args.lr = conf.lr
 MAX_EPOCH = args.max_epoch
 BATCH_SIZE = args.batch_size
 
-logpath = '../log/search_'+str(args.learner)+conf.env+'/'+str(args.learner) + \
+logpath = './mylogs/fixstep_num'+str(args.num_process)+'_epoch'+str(MAX_EPOCH) + '/' +str(args.learner)+conf.env+'/'+str(args.learner) + \
     str(args.gamma)+'_' + str(args.lr)+'/'
 
 # reward discount
@@ -83,10 +84,20 @@ def run(envs, step_list, mac, mem, learner, eps, args):
 
 if __name__ == "__main__":
     # execution
-    step_list = []
-    for i in range(args.num_process):
-        step_list.append(np.random.randint(1000, 9999))
-    my_steps = np.array(step_list)
+    # step_list = []
+    # for i in range(args.num_process):
+    #     step_list.append(np.random.randint(1000, 9999))
+    my_steps = []
+    f = csv.reader(open('step_list.csv','r'))
+    for item in f:
+        my_steps = item
+    for i in range(len(my_steps)):
+        my_steps[i] = int(my_steps[i])
+    my_steps = np.array(my_steps)
+
+    my_steps = np.array(my_steps)
+    step_list = my_steps[:args.num_process]
+    print(step_list)
 
     if args.double_thr is None:
         double_thr = 1000
@@ -125,6 +136,7 @@ if __name__ == "__main__":
             envs.reset(my_steps)
             val_return, val_lenth = run(
                 envs, my_steps, mac, mem, learner, 0, args)
+            mem.clean()
             val_metric = {
                 'tot_reward': val_return.mean(),
                 'tot_len': val_lenth.mean(),
@@ -132,8 +144,7 @@ if __name__ == "__main__":
 
             logx.metric('val', val_metric, x)
 
-            path = f'{logpath}/models/{args.N}server-{x}'
-            
+            path = 'models/'+str(args.learner)+'_'+conf.env+ '/'+str(args.gamma)+'_' + str(args.lr)+'/' + str(args.N)+'server-'+str(x)
 
             if not os.path.exists(path):
                 os.makedirs(path)

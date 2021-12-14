@@ -1,21 +1,136 @@
-
+from config import Config
+import os
+import copy
 import numpy as np
 from schedgym.sched_env import SchedEnv
+from schedgym.mySubproc_vec_env import SubprocVecEnv
+from utils.rl_utils import linear_decay, time_format
+import argparse
+from controllers import REGISTRY as mac_REGISTRY
+from learners import REGISTRY as le_REGISTRY
+from components import REGISTRY as mem_REGISTRY
+from runx.logx import logx
+from hashlib import sha1
+import time
+import csv
+import torch as th
 
-DATA_PATH = 'vmagent/data/dataset.csv'
+
+DATA_PATH = 'data/dataset.csv'
+
+parser = argparse.ArgumentParser(description='Sched More Servers')
+parser.add_argument('--env', type=str)
+parser.add_argument('--alg', type=str)
+conf = parser.parse_args()
+args = Config(conf.env, conf.alg)
+MAX_EPOCH = 5
+BATCH_SIZE = args.batch_size
+
+ 
+def make_env(N, cpu, mem, allow_release, double_thr=1e10):
+    def _init():
+        env = SchedEnv(N, cpu, mem, DATA_PATH, render_path='render/'+args.learner+'/a2c.p',
+                       allow_release=allow_release, double_thr=double_thr)
+        # env.seed(seed + rank)
+        return env
+    # set_global_seeds(seed)
+    return _init
+
+
+def run(envs, step_list, mac, mem, learner, eps, args):
+
+    tot_reward = np.array([0. for j in range(args.num_process)])
+    tot_lenth = np.array([0. for j in range(args.num_process)])
+    step = 0
+    stop_idxs = np.array([0 for j in range(args.num_process)])
+    while True:
+        # get action
+        step += 1
+        envs.update_alives()
+
+        alives = envs.get_alives().copy()
+        if all(~alives):
+            return tot_reward.mean(), tot_lenth.mean()
+
+        avail = envs.get_attr('avail')
+        feat = envs.get_attr('req')
+        obs = envs.get_attr('obs')
+        state = {'obs': obs, 'feat': feat, 'avail': avail}
+        
+        action = mac.select_actions(state, eps)
+        
+        action, next_obs, reward, done = envs.step(action)
+        stop_idxs[alives] += 1
+
+        next_avail = envs.get_attr('avail')
+        next_feat = envs.get_attr('req')
+        tot_reward[alives] += reward
+        tot_lenth[alives] += 1
+
+        buf = {'obs': obs, 'feat': feat, 'avail': avail, 'action': action,
+               'reward': reward, 'next_obs': next_obs, 'next_feat': next_feat,
+               'next_avail': next_avail, 'done': done}
+        mem.push(buf)
+
 
 if __name__ == "__main__":
+    # execution
+    # step_list = []
+    # for i in range(args.num_process):
+    #     step_list.append(np.random.randint(1000, 9999))
+    my_steps = []
+    f = csv.reader(open('step_list.csv','r'))
+    for item in f:
+        my_steps = item
+    for i in range(len(my_steps)):
+        my_steps[i] = int(my_steps[i])
+    my_steps = np.array(my_steps)
 
-    env = SchedEnv(5, 40, 90, DATA_PATH, render_path='../test.p',
-                   allow_release=False, double_thr=32)
-    MAX_STEP = 1e4
-    env.reset(np.random.randint(0, MAX_STEP))
-    done = env.termination()
-    while not done:
-        feat = env.get_attr('req')
-        obs = env.get_attr('obs')
-        # sample by first fit
-        avail = env.get_attr('avail')
-        action = np.random.choice(np.where(avail == 1)[0])
-        action, next_obs, reward, done = env.step(action)
+    my_steps = np.array(my_steps)
+    step_list = my_steps[:args.num_process]
+    print(step_list)
 
+    if args.double_thr is None:
+        double_thr = 1000
+    else:
+        double_thr = args.double_thr
+
+    envs = SubprocVecEnv([make_env(args.N, args.cpu, args.mem, allow_release=(
+        args.allow_release == 'True'), double_thr=double_thr) for i in range(args.num_process)])
+
+
+    mac = mac_REGISTRY[args.mac](args)
+    print(f'Sampling with {args.mac} for {MAX_EPOCH} epochs; Learn with {args.learner}')
+    learner = le_REGISTRY[args.learner](mac, args)
+    mem = mem_REGISTRY[args.memory](args)
+
+    # load model
+    path = '/home/mujuco/VMAgent/VMAgent/vmagent/models/a2c_learner_fading/0.999999_1e-11/5server-200/'
+    learner.load_models(path)
+
+    t_start = time.time()
+    for x in range(MAX_EPOCH):
+        eps = linear_decay(x, [0, int(
+            MAX_EPOCH * 0.25),  int(MAX_EPOCH * 0.9), MAX_EPOCH], [0.9, 0.5, 0.2, 0.2])
+        envs.reset(my_steps)
+
+        train_rew, train_len = run(
+            envs, my_steps, mac, mem, learner, eps, args)
+        actor_loss, critic_loss, critic1_loss, critic2_loss, alpha_loss = [0 for i in range(5)]
+
+        # # start optimization
+        # for i in range(args.train_n):
+        #     batch = mem.sample(BATCH_SIZE)
+        #     metrics = learner.train(batch)
+
+        # log training curves
+        # metrics['eps'] = eps
+        # metrics['tot_reward'] = train_rew.mean()
+        # metrics['tot_len'] = train_len.mean()
+        # logx.metric('train', metrics, x)
+
+        tot_reward = train_rew.mean()
+        tot_len = train_len.mean()
+
+        print(tot_reward)
+        print(tot_len)
