@@ -84,13 +84,15 @@ class A2CLearner:
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
         with th.no_grad():
+            idx = th.eq(mask, 1)
+            Q_targets = rew
             _, action_probs_next, _ = self.mac.get_act_probs(
-                [[next_obs, next_feat], next_avail])
-            q_next = self.mac.agent.critic([next_obs,next_feat])
+                [[next_obs[idx], next_feat[idx]], next_avail[idx]])
+            q_next = self.mac.agent.critic([next_obs[idx],next_feat[idx]])
 
             V_next = (action_probs_next.cuda() * q_next.cuda()).sum(1)
             # Compute Q targets for current states (y_i)
-            Q_targets = rew + (self.args.gamma * (mask * V_next))
+            Q_targets[idx] = rew[idx] + (self.args.gamma *  V_next)
 
         # Compute critic loss        
         critic_loss = 0.5 * F.mse_loss(V, Q_targets)

@@ -1,4 +1,3 @@
-
 import numpy as np
 from schedgym.sched_env import SchedEnv
 
@@ -18,4 +17,3 @@ if __name__ == "__main__":
         avail = env.get_attr('avail')
         action = np.random.choice(np.where(avail == 1)[0])
         action, next_obs, reward, done = env.step(action)
-

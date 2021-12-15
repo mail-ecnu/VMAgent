@@ -104,14 +104,18 @@ class SACLearner:
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
         with th.no_grad():
-            _, action_probs_next, log_pis_next = self.mac.get_act_probs([[next_obs,next_feat],None])
-            Q_target1_next = self.mac.agent.critic1_target([next_obs,next_feat])
-            Q_target2_next = self.mac.agent.critic2_target([next_obs,next_feat])
+            idx = th.eq(mask, 1)
+            Q_targets = rew
+
+            _, action_probs_next, log_pis_next = self.mac.get_act_probs\
+                ([[next_obs[idx],next_feat[idx]],None])
+            Q_target1_next = self.mac.agent.critic1_target([next_obs[idx],next_feat[idx]])
+            Q_target2_next = self.mac.agent.critic2_target([next_obs[idx],next_feat[idx]])
             V1_next = (action_probs_next.cuda() * Q_target1_next).sum(1)
             V2_next = (action_probs_next.cuda() * Q_target2_next).sum(1)
             V_target_next = th.min(V1_next,V2_next) - (self.mac.agent.alpha.cuda()* log_pis_next.cuda()).sum(1)
             # Compute Q targets for current states (y_i)
-            Q_targets = rew + (self.args.gamma * (mask * V_target_next))
+            Q_targets[idx] = rew[idx] + (self.args.gamma * V_target_next)
 
         # Compute critic loss
         critic1_loss = 0.5 * F.mse_loss(V1, Q_targets)
