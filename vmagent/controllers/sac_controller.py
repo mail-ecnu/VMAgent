@@ -21,11 +21,14 @@ class SACMAC:
             avail_actions = avail_actions.reshape(agent_outs.shape)
             try:
                 idx = th.eq(avail_actions, 0)
+                idx_1 = th.eq(avail_actions, 1)
+                agent_outs[idx_1] += 0.1
                 agent_outs[idx] = 0
                 agent_outs.cpu()
             except:
                 import pdb
                 pdb.set_trace()
+        
         return agent_outs, avail_actions
 
     def merge_avail_action(self, avail_actions, candi_actions):
@@ -41,7 +44,7 @@ class SACMAC:
     def select_actions(self, ep_batch, eps=1):
         # Only select actions for the selected batch elements in bs
         agent_outputs, avail_actions = self.forward(ep_batch)
-        chosen_actions, action_probs, log_action_probabilities = self.action_selector.select_action(
+        chosen_actions, _, __ = self.action_selector.select_action(
             agent_outputs, avail_actions)
         try:
             chosen_actions.cpu().numpy()
@@ -63,6 +66,7 @@ class SACMAC:
         agent_inputs, avail_actions = self._build_inputs(ep_batch)
 
         agent_outs = self.agent.actor_local.forward(agent_inputs)
+
         if isDelta:
             z_agent_inputs, z_avail_actions = self._build_inputs(
                 ep_batch, is_z=True)
