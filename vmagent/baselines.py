@@ -16,8 +16,6 @@ import time
 import csv
 
 
-print(torch.cuda.is_available())
-
 DATA_PATH = 'vmagent/data/Huawei-East-1.csv'
 parser = argparse.ArgumentParser(description='Sched More Servers')
 
@@ -90,11 +88,8 @@ if __name__ == "__main__":
         args.allow_release == 'True'), double_thr=args.double_thr) for i in range(args.num_process)])
 
     step_list = []
-    f = csv.reader(open('../log/step_list.csv','r'))
-    for item in f:
-        step_list = item
-    for i in range(len(step_list)):
-        step_list[i] = int(step_list[i])
+    for i in range(args.num_process):
+        step_list.append(np.random.randint(1000, 9999))
     step_list = np.array(step_list)
     # for i in range(1000):
     #     step_list.append(np.random.randint(0, 16000))
@@ -108,7 +103,6 @@ if __name__ == "__main__":
     envs.reset(step_list[:args.num_process])
 
     for j in range(int(step_list.size/args.num_process)):
-        print(j)
         local_list = step_list[j:j+args.num_process]
         try:
             envs.reset(local_list)
