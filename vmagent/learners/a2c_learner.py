@@ -71,16 +71,23 @@ class A2CLearner:
 
         # ---------------------------- update actor ---------------------------- #
         _, action_probs, log_pis = self.mac.get_act_probs([[obs, feat], avail])
-        q_values = self.mac.agent.critic([obs, feat])   
-        V = (action_probs.cuda() * q_values.cuda()).sum(1)
-        advantages = q_values - V.unsqueeze(-1)
 
-        actor_loss = -(log_pis.cuda() *advantages.cuda()).sum(1).mean()
+        q_values = self.mac.agent.critic([obs, feat])
+        # print(log_pis.grad_fn)
+        # print(q_values.grad_fn)
+        
+        # advantages = q_values - V.unsqueeze(-1)
 
+        actor_loss = -(log_pis * q_values).sum(1).mean()
+
+        # print(actor_loss)
+        # print(self.mac.agent.actor_local([obs, feat]))
         self.mac.agent.actor_optimizer.zero_grad()
         actor_loss.backward(retain_graph=True)
         self.mac.agent.actor_optimizer.step()
+        # print(self.mac.agent.actor_local([obs, feat]))
 
+        V = (action_probs.cuda() * q_values.cuda()).sum(1)
         # ---------------------------- update critic ---------------------------- #
         # Get predicted next-state actions and Q values from target models
         with th.no_grad():

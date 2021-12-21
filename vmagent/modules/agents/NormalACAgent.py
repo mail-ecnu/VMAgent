@@ -34,7 +34,7 @@ class Actor(nn.Module):
             nn.Linear(256, self.num_actions),
             nn.ReLU(),
         )
-        #self.softmax = nn.Softmax(dim=-1)
+        self.softmax = nn.Softmax(dim=1)
 
     def forward(self, state):
         obs, feat = state[0], state[1]
@@ -49,10 +49,9 @@ class Actor(nn.Module):
         h3 = self.fc1(h)
         h3 = self.fc2(h3)
 
-        action_probs = h3
-        #action_probs = self.softmax(h3)
-
-        return action_probs.detach().cpu()
+        action_probs = self.softmax(h3)
+        
+        return action_probs
     
            
 
@@ -119,9 +118,9 @@ class NormalACAgent(nn.Module):
                 
         # Actor Network 
 
-        self.actor_local = Actor(state_space, act_space, args).cuda()
+        self.actor_local = Actor(state_space, act_space, args)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=self.lr)     
         
         # Critic Network (w/ Target Network)
-        self.critic = Critic(state_space, act_space, args).cuda()
+        self.critic = Critic(state_space, act_space, args)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=self.lr)

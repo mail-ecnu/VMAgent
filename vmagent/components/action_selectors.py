@@ -1,7 +1,9 @@
 import torch as th
 from torch.distributions import Categorical
 import numpy as np
-import torch.nn as nn
+
+logpath = './mylogs/action_selects.csv'
+import csv
 
 REGISTRY = {}
 
@@ -38,29 +40,41 @@ class NormalACActionSelector():
     def __init__(self, args):
         self.args = args
 
-    def select_action(self, agent_outputs, avail_actions):
-        # agent_outputs：the output of the ActorNetwork after softmax
-        action_probs = (agent_outputs-agent_outputs.min()) / (agent_outputs.max()-agent_outputs.min())
-        # print(action_probs)
+
+    def select_action(self, agent_outputs, avail_actions, flag=False):
+        action_probs = agent_outputs * avail_actions
         dist = Categorical(action_probs)
-        actions = dist.sample()
-        z = (action_probs == 0.0).float() * 1e-8
+        # print('nan values:', th.sum(th.isnan(action_probs)).item())
+        if flag == False:
+            actions = dist.sample()
+        else:
+            actions = th.argmax(action_probs,dim=-1)
+
+        z = action_probs == 0.0
+        z = z.float() * 1e-8
         log_action_probabilities = th.log(action_probs + z)
-        return actions, action_probs, log_action_probabilities
+
+        return actions.detach().cpu(), action_probs, log_action_probabilities.detach()
 
 
 class PPOActionSelector():
     def __init__(self, args):
         self.args = args
 
-    def select_action(self, agent_outputs, avail_actions):
-        # agent_outputs：the output of the ActorNetwork after softmax
-        action_probs = (agent_outputs-agent_outputs.min()) / (agent_outputs.max()-agent_outputs.min())
+    def select_action(self, agent_outputs, avail_actions,flag=False):
+        action_probs = agent_outputs * avail_actions
+
         dist = Categorical(action_probs)
-        actions = dist.sample()
-        log_action_probabilities = dist.log_prob(actions)
+        if flag == False:
+            actions = dist.sample()
+        if flag == True:
+            actions = th.argmax(action_probs,dim=-1)
+
+        z = action_probs == 0.0
+        z = z.float() * 1e-8
+        log_action_probabilities = th.log(action_probs + z)
         dist_entropy = dist.entropy()
-        return actions, action_probs, log_action_probabilities, dist_entropy
+        return actions.detach().cpu(), action_probs, log_action_probabilities, dist_entropy
 
 
 REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
