@@ -22,21 +22,27 @@ import csv
 
 print(torch.cuda.is_available())
 
-DATA_PATH = 'vmagent/data/dataset.csv'
+# DATA_PATH = 'data/dataset.csv'
+DATA_PATH = 'data/dataset_deal.csv'
 parser = argparse.ArgumentParser(description='Sched More Servers')
 
 parser.add_argument('--env', type=str)
 parser.add_argument('--baseline', type=str)
 parser.add_argument('--N', type=int)
+parser.add_argument('--max_epoch', type=int,default=4000)
 conf = parser.parse_args()
 args = Config(conf.env, None)
 args.N = conf.N
 args.baseline = conf.baseline
 
+logpath = f'./mylogs/10step-epoch{str(conf.max_epoch)}/'\
+    + f'{conf.env}/{str(conf.baseline)}/'
 
-def make_env(N, cpu, mem, allow_release, double_thr=1e10):
+logx.initialize(logdir=logpath, coolname=True, tensorboard=True)
+
+def make_env(N, cpu, mem, allow_release, double_thr=1e10, render_path=None):
     def _init():
-        env = SchedEnv(N, cpu, mem, DATA_PATH, render_path=None,
+        env = SchedEnv(N, cpu, mem, DATA_PATH, render_path=render_path,
                        allow_release=allow_release, double_thr=args.double_thr)
         # env.seed(seed + rank)
         return env
@@ -52,7 +58,7 @@ def sample_baselines(envs, step_list, method, args):
     stop_idxs = np.array([0 for j in range(args.num_process)])
     loss = 0
     learn_cnt = 1
-    last_obs = []
+    remains = [ [] for i in range(args.num_process)]
     while True:
         step += 1
         envs.update_alives()
@@ -60,20 +66,40 @@ def sample_baselines(envs, step_list, method, args):
         alives = envs.get_alives().copy()
         start = time.time()
         if all(~alives):
-            last_obs = np.array(last_obs)
-            remains = np.sum(last_obs, axis=2).sum(1)
-            return tot_lenth.mean(), (2*args.cpu*args.num_process-remains[0][0])/(2*args.cpu*args.num_process),(2*args.mem*args.num_process-remains[0][1])/(2*args.mem*args.num_process)
+            left = np.sum(remains, axis=2).sum(1).sum(0)
+            print(tot_lenth)
+            print((2*args.cpu*args.N*args.num_process-left[0])/(2*args.cpu*args.N*args.num_process))
+            print((2*args.mem*args.N*args.num_process-left[1])/(2*args.mem*args.N*args.num_process))
+            return tot_lenth.mean(), \
+            (2*args.cpu*args.N*args.num_process-left[0])/(2*args.cpu*args.N*args.num_process),\
+            (2*args.mem*args.N*args.num_process-left[1])/(2*args.mem*args.N*args.num_process)
         avail = envs.get_attr('avail')
         feat = envs.get_attr('req')
         obs = envs.get_attr('obs')
         state = {'obs': obs, 'feat': feat, 'avail': avail}
         if method == 'ff':
             action = np.ones(obs.shape[0]) * -1
-        elif method == 'bf':
+        elif method == 'bf_cpu':
             action = np.ones(obs.shape[0]) * -2
+        elif method == 'bf_mem':
+            action = np.ones(obs.shape[0]) * -3
+        elif method == 'random':
+            action = np.zeros(obs.shape[0],dtype=int)
+            for j in range(len(avail)):
+                indexs = []
+                for i in range(len(avail[j])):
+                    if avail[j][i] == True:
+                        indexs.append(i)
+                action[j] = random.sample(indexs,1)[0]
 
-        action, next_obs, reward, done = envs.step(action)
-        last_obs = next_obs
+        action, next_obs, reward, done, info = envs.step(action)
+        
+        indexs = []
+        for i in range(len(alives)):
+            if alives[i] == True:
+                indexs.append(i)
+        for i in range(len(indexs)):
+            remains[indexs[i]] = next_obs[i]
         
         # print(f'next obs: {next_obs},')
         
@@ -93,12 +119,12 @@ def sample_baselines(envs, step_list, method, args):
 
 if __name__ == "__main__":
 
-    render_path = f'{args.baseline}-{args.N}.p'
+    render_path = f'render/{args.baseline}/{args.baseline}-{args.N}.p'
     envs = SubprocVecEnv([make_env(args.N, args.cpu, args.mem, allow_release=(
-        args.allow_release == 'True'), double_thr=args.double_thr) for i in range(args.num_process)])
+        args.allow_release == True), double_thr=args.double_thr, render_path =None) for i in range(args.num_process)])
 
     step_list = []
-    f = csv.reader(open('chc_logs/step_list.csv','r'))
+    f = csv.reader(open('search.csv','r'))
     for item in f:
         step_list = item
     for i in range(len(step_list)):
@@ -112,30 +138,14 @@ if __name__ == "__main__":
     cpu_rates = []
     mem_rates = []
 
-    print(step_list[:args.num_process])
-    envs.reset(step_list[:args.num_process])
-
-    local_list = step_list[:args.num_process]
-    test_len, cpu_rate, mem_rate = sample_baselines(
-            envs, local_list, args.baseline, args)
-    cpu_rates.append(cpu_rate)
-    results.append(test_len)
-    mem_rates.append(mem_rate)
-
-    # for j in range(int(step_list.size/args.num_process)):
-    #     local_list = step_list[j:j+args.num_process]
-    #     try:
-    #         envs.reset(local_list)
-    #     except:
-    #         import pdb; pdb.set_trace()
-    #     test_len, cpu_rate, mem_rate = sample_baselines(
-    #         envs, local_list, args.baseline, args)
-    #     cpu_rates.append(cpu_rate)
-    #     results.append(test_len)
-    #     mem_rates.append(mem_rate)
-    #     # print(f'cpu_rate:{cpu_rate}')
-    #     # print(f'test_len:{test_len}')
-    #     # print(f'mem_rate:{mem_rate}')
+    for i in range(10):
+        val_list = step_list[i*args.num_process : (i+1)*args.num_process]
+        envs.reset(val_list)
+        test_len, cpu_rate, mem_rate = sample_baselines(
+            envs, val_list, args.baseline, args)  
+        cpu_rates.append(cpu_rate)
+        results.append(test_len)
+        mem_rates.append(mem_rate)
 
     path = f'search/{args.baseline}/{conf.env}/{args.N}server/'
 
@@ -145,9 +155,13 @@ if __name__ == "__main__":
     results = np.array(results)
     cpu_rates = np.array(cpu_rates)
     mem_rates = np.array(mem_rates) 
-    data = [[results.mean(),results.std()],[cpu_rates.mean(),cpu_rates.std()],[mem_rates.mean(),mem_rates.std()]]
+    val_metric = {
+                'train_len': results.mean(),
+                'cpu_rates': cpu_rates.mean(),
+                'mem_rates': mem_rates.mean(),
+            }
+    for x in range(conf.max_epoch):
+        if x % args.test_interval == 0:
+            logx.metric('val', val_metric, x)
 
-    with open(path+'/results.csv','w')as f:
-        f_csv = csv.writer(f)
-        f_csv.writerow(step_list)
-        f_csv.writerow(data)
+    data = [[results.mean(),results.std()],[cpu_rates.mean(),cpu_rates.std()],[mem_rates.mean(),mem_rates.std()]]

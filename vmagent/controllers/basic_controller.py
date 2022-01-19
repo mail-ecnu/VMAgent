@@ -36,11 +36,14 @@ class VectorMAC:
 
         return avail
 
-    def select_actions(self, ep_batch, eps):
+    def select_actions(self, ep_batch, flag ,eps):
         # Only select actions for the selected batch elements in bs
         start = time.time()
         agent_outputs, avail_actions = self.forward(ep_batch)
-        chosen_actions = self.action_selector.select_action(agent_outputs, eps, avail_actions, 0)
+        if flag==False:
+            chosen_actions = self.action_selector.select_action(agent_outputs, eps, avail_actions, self.args.eps2)
+        else:
+            chosen_actions = self.action_selector.select_action(agent_outputs, 0, avail_actions, 0)
         try:
             chosen_actions.cpu().numpy()
         except:

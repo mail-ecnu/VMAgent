@@ -2,11 +2,7 @@ import torch as th
 from torch.distributions import Categorical
 import numpy as np
 
-logpath = './mylogs/action_selects.csv'
-import csv
-
 REGISTRY = {}
-
 
 class EpsilonGreedyActionSelector():
 
@@ -36,47 +32,18 @@ class EpsilonGreedyActionSelector():
         return picked_actions
 
 
-class NormalACActionSelector():
+class SoftPoliciesSelector():
+
     def __init__(self, args):
         self.args = args
 
-
-    def select_action(self, agent_outputs, avail_actions, flag=False):
-        action_probs = agent_outputs * avail_actions
-        dist = Categorical(action_probs)
-        # print('nan values:', th.sum(th.isnan(action_probs)).item())
-        if flag == False:
-            actions = dist.sample()
+    def select_action(self, agent_inputs, avail_actions, flag=False):  
+        if flag:
+            picked_actions = th.argmax(agent_inputs,dim=-1)
         else:
-            actions = th.argmax(action_probs,dim=-1)
-
-        z = action_probs == 0.0
-        z = z.float() * 1e-8
-        log_action_probabilities = th.log(action_probs + z)
-
-        return actions.detach().cpu(), action_probs, log_action_probabilities.detach()
-
-
-class PPOActionSelector():
-    def __init__(self, args):
-        self.args = args
-
-    def select_action(self, agent_outputs, avail_actions,flag=False):
-        action_probs = agent_outputs * avail_actions
-
-        dist = Categorical(action_probs)
-        if flag == False:
-            actions = dist.sample()
-        if flag == True:
-            actions = th.argmax(action_probs,dim=-1)
-
-        z = action_probs == 0.0
-        z = z.float() * 1e-8
-        log_action_probabilities = th.log(action_probs + z)
-        dist_entropy = dist.entropy()
-        return actions.detach().cpu(), action_probs, log_action_probabilities, dist_entropy
+            picked_actions = Categorical(agent_inputs).sample()
+        return picked_actions
 
 
 REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
-REGISTRY["AC"] = NormalACActionSelector
-REGISTRY["ppo"] = PPOActionSelector
+REGISTRY["soft_policies"] = SoftPoliciesSelector

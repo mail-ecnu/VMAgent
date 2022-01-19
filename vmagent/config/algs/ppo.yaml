@@ -1,3 +1,6 @@
-mac: 'ppomac'
+mac: 'ac_mac'
 learner: 'ppo_learner'
-agent: 'NormalACAgent'
+agent: 'ACAgent'
+
+epochs: 4
+eps_clip: 0.2

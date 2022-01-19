@@ -130,3 +130,12 @@ dmypy.json
 .pyre/
 
 .DS_Store
+
+# logs and models
+vmagent/mylogs
+vmagent/render
+vmagent/models
+
+# shells
+*.sh
+
