@@ -50,11 +50,11 @@ class ACMAC:
     def cuda(self):
         self.agent.cuda()
 
-    def save_models(self, path):
-        th.save(self.agent.state_dict(), "{}/agent.th".format(path))
+    def save_models(self, path, x):
+        th.save(self.agent.state_dict(), f"{path}/agent_epoch{x}.th")
 
-    def load_models(self, path):
-        self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
+    def load_models(self, path, x):
+        self.agent.load_state_dict(th.load(f"{path}/agent_epoch{x}.th", map_location=lambda storage, loc: storage))
 
     def _build_agents(self, obs_space, action_space, args):
         self.agent = agent_REGISTRY[self.args.agent](obs_space, action_space, args).cuda()

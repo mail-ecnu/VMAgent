@@ -3,6 +3,7 @@ from modules.agents import REGISTRY as agent_REGISTRY
 from components.action_selectors import REGISTRY as action_REGISTRY
 import numpy as np
 import time
+import csv
 
 class VectorMAC:
     def __init__(self, args):
@@ -20,7 +21,7 @@ class VectorMAC:
             avail_actions = avail_actions.reshape(agent_outs.shape)
             try: 
                 idx = th.eq(avail_actions, 0)
-                agent_outs[idx] = 0
+                agent_outs[idx] = -1e10
                 agent_outs.cpu()
             except:
                 import pdb; pdb.set_trace()
@@ -39,18 +40,19 @@ class VectorMAC:
     def select_actions(self, ep_batch, flag ,eps):
         # Only select actions for the selected batch elements in bs
         start = time.time()
-        agent_outputs, avail_actions = self.forward(ep_batch)
+        agent_outputs, avail_actions = self.forward(ep_batch, flag)
         if flag==False:
             chosen_actions = self.action_selector.select_action(agent_outputs, eps, avail_actions, self.args.eps2)
         else:
             chosen_actions = self.action_selector.select_action(agent_outputs, 0, avail_actions, 0)
+            
         try:
             chosen_actions.cpu().numpy()
         except:
             import pdb; pdb.set_trace()
         return  chosen_actions.cpu().numpy()
 
-    def forward(self, ep_batch, isDelta=False):
+    def forward(self, ep_batch, flag=False, isDelta=False):
         agent_inputs, avail_actions = self._build_inputs(ep_batch)
         agent_outs = self.agent(agent_inputs)
         if isDelta:
@@ -69,11 +71,11 @@ class VectorMAC:
     def cuda(self):
         self.agent.cuda()
 
-    def save_models(self, path):
-        th.save(self.agent.state_dict(), "{}/agent.th".format(path))
+    def save_models(self, path, x):
+        th.save(self.agent.state_dict(), f"{path}/agent_epoch{x}.th")
 
-    def load_models(self, path):
-        self.agent.load_state_dict(th.load("{}/agent.th".format(path), map_location=lambda storage, loc: storage))
+    def load_models(self, path, x):
+        self.agent.load_state_dict(th.load(f"{path}/agent_epoch{x}.th", map_location=lambda storage, loc: storage))
 
     def _build_agents(self, obs_space, action_space, args):
         self.agent = agent_REGISTRY[self.args.agent](obs_space, action_space, args).cuda()

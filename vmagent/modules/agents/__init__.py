@@ -1,8 +1,6 @@
 from .ACAgent import ACAgent
-from .QmixAgent import QmixAgent
-from .DQNAgent import DQNAgent
+from .DQNAgent_modify import DQNAgent_modify
 REGISTRY = {}
 
-REGISTRY['DQNAgent'] = DQNAgent
-REGISTRY['QmixAgent'] = QmixAgent
 REGISTRY['ACAgent'] = ACAgent
+REGISTRY['DQNAgent_modify'] = DQNAgent_modify

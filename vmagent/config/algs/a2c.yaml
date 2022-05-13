@@ -1,3 +1,7 @@
 mac: 'ac_mac'
 learner: 'a2c_learner'
 agent: 'ACAgent'
+capacity: 2000000
+
+batch_size: 4096
+

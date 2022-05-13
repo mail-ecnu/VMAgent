@@ -76,11 +76,11 @@ class SACLearner:
         
         mac_out, _ = self.mac.forward([[obs, feat], avail])
         pi = mac_out
-        pi[mask == 0] = 1.0
         pi_taken = th.gather(pi, dim=1, index=actions.unsqueeze(-1))
         log_pi_taken = th.log(pi_taken + 1e-10)
 
-        critic_mask = mask.clone()
+        rew = rew.unsqueeze(-1)
+        critic_mask = mask.unsqueeze(-1)
 
         # Qcurrent  
         q_values = self.q_critic([obs,feat],actions)
@@ -92,7 +92,7 @@ class SACLearner:
         expected_values = self.critic([obs,feat])
 
         # Qnet TD-error rew + γ*Vnext- Q
-        next_q_values = rew + critic_mask * self.args.gamma * target_values        
+        next_q_values = rew + critic_mask * self.args.gamma * target_values       
         q_td_error = next_q_values.detach() - q_values
         masked_q_td_error = q_td_error * critic_mask
 
@@ -114,8 +114,9 @@ class SACLearner:
         grad_norm = clip_grad_norm_(self.critic_params, self.args.grad_norm_clip)
         self.critic_optimiser.step()
 
-        # Actor loss alpha*logpi - Q      
-        actor_loss = ((self.alpha.detach() * log_pi_taken - expected_q_values) * mask).sum() / mask.sum()
+        # Actor loss alpha*logpi - Q  
+        actor_loss = ((self.alpha.detach() * log_pi_taken - expected_q_values) * critic_mask).sum() / mask.sum()
+        
 
         self.agent_optimiser.zero_grad()
         actor_loss.backward(retain_graph=True)
@@ -123,7 +124,8 @@ class SACLearner:
         self.agent_optimiser.step()
 
         entropy = -th.sum(pi * th.log(pi + 1e-10), dim=-1)
-        alpha_loss = - (self.log_alpha.exp() * (entropy + log_pi_taken).detach()).mean()
+        entropy[mask==0] = 0.0
+        alpha_loss = - (self.log_alpha.exp() * (entropy + log_pi_taken.squeeze()).detach()).mean()
 
         self.alpha_update_step += 1
         if self.alpha_update_step % 5 == 0:
@@ -154,14 +156,14 @@ class SACLearner:
         self.q_critic.cuda()
         self.target_q_critic.cuda()
 
-    def save_models(self, path):
-        self.mac.save_models(path)
-        th.save(self.critic.state_dict(), "{}/critic.th".format(path))
-        th.save(self.q_critic.state_dict(), "{}/q_critic.th".format(path))
-        th.save(self.alpha_optimiser.state_dict(), "{}/alpha_opt.th".format(path))
-        th.save(self.agent_optimiser.state_dict(), "{}/agent_opt.th".format(path))
-        th.save(self.critic_optimiser.state_dict(), "{}/critic_opt.th".format(path))
-        th.save(self.critic_q_optimiser.state_dict(), "{}/q_critic_opt.th".format(path))
+    def save_models(self, path, x):
+        self.mac.save_models(path, x)
+        th.save(self.critic.state_dict(), f"{path}/critic_{x}.th")
+        th.save(self.q_critic.state_dict(), f"{path}/q_critic_{x}.th")
+        th.save(self.alpha_optimiser.state_dict(), f"{path}/alpha_opt_{x}.th")
+        th.save(self.agent_optimiser.state_dict(), f"{path}/agent_opt_{x}.th")
+        th.save(self.critic_optimiser.state_dict(), f"{path}/critic_opt_{x}.th")
+        th.save(self.critic_q_optimiser.state_dict(), f"{path}/q_critic_opt_{x}.th")
 
     def load_models(self, path):
         self.mac.load_models(path)

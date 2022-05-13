@@ -1,3 +1,4 @@
+from argparse import Action
 import pandas as pd
 import numpy as np
 import random
@@ -17,13 +18,28 @@ def getData(path, double_thr=1e10, smallFilter=False):
     for item in l:
         newdict = {'uuid': item[0], 'cpu': item[1], 'mem': item[2],
                    'time': item[3], 'type': int(item[4]), 'is_double': 0}
+        # filter all the small size VMs
         if smallFilter and newdict['cpu']<4:
             continue
-        if newdict['cpu'] > double_thr:
+        # double NUMA threshold for cpu
+        if newdict['cpu'] >= double_thr:
             newdict['is_double'] = 1
         l[index] = newdict
         index += 1
     return l
+
+def getSData(path):
+    '''
+    csv_data: input a DataFrame Object
+    return: A list like [{'uuid':'',...},{},...]
+    '''
+    csv_data = pd.read_csv(path)
+    l = np.array(csv_data).tolist()
+    index = 0
+    res = {}
+    for item in l:
+        res[make_key(item[0], item[1])] = item[2]
+    return res
 
 def make_key(cpu, mem):
     return 'c'+str(int(cpu)) +'m'+str(int(mem))
@@ -75,6 +91,11 @@ class Server():
         return True
 
     def allo_rate(self, numa, cpu_selection):
+        '''
+            calculate allocation rate after creation.
+            cpu_allo_rate if cpu_selection is True.
+            mem_allo_rate if cpu_selection is False.
+        '''
         if cpu_selection:
             return self.remain_cpu[numa] / self.tot_cpu[numa]
         else:
@@ -82,7 +103,7 @@ class Server():
 
     def allocate(self, request, numa=0):
         '''
-            allocate request on the server
+            allocate request on the server.
         '''
         if request['is_double'] == 1:
             reqs = self.split_req(request)
@@ -95,7 +116,7 @@ class Server():
 
     def delete(self, request):
         '''
-            delete request on the server
+            delete request on the server.
         '''
         del_status = -1
         for i in range(2):
@@ -114,6 +135,9 @@ class Server():
         return del_status
 
     def _usable(self, request, numa):
+        '''
+            check if server can handle the request.
+        '''
         if self.remain_mem[numa] >= request['mem'] and self.remain_cpu[numa] >= request['cpu']:
             return 1
         else:
@@ -137,17 +161,20 @@ class Server():
         return usable
 
     def reset_status(self, status):
+        '''
+            reset server's attribute.
+        '''
         self.remain_cpu[0] = status[0][0]
         self.remain_cpu[1] = status[1][0]
         self.remain_mem[0] = status[0][1]
         self.remain_mem[1] = status[1][1]
 
     def describe(self):
+        '''
+            return remain cpu and mem
+        '''
         return [[self.remain_cpu[0], self.remain_mem[0]],
                 [self.remain_cpu[1], self.remain_mem[1]]]
-        # return {'remain_cpu': self.remain_cpu, 'remain_mem': self.remain_mem,
-        # 'numas': self.stored
-        # }
 
 class Cluster():
     def __init__(self, N, cpu, mem):
@@ -163,6 +190,9 @@ class Cluster():
         self.servers[action//2].handle(request, numa=action%2)
 
     def first_fit_action(self, request):
+        '''
+            get action for first-fit
+        '''
         i = -1
         for server in self.servers:
             i += 1
@@ -172,6 +202,10 @@ class Cluster():
                     return i * 2 + numa
 
     def best_fit_action(self, request, cpu_selection):
+        '''
+            get action for best-fit.
+            cpu_selection defines bf for cpu or mem.
+        '''
         i = -1
         bst_action = 20
         bst_allo_rate = 2
@@ -196,7 +230,36 @@ class Cluster():
                         server.delete(request)
         return bst_action
 
+    def get_topk_action_by_bst(self, request, k):
+        bst_delta = 10000
+        myScores = []
+        for server in self.servers:
+            usable = server.usable(request)
+            for numa in range(2):
+                if usable[numa] == 1:
+                    server.handle(request, numa)
+                    if request['is_double'] == 1:
+                        myScores.append(max(server.allo_rate(0,True), server.allo_rate(1,True)))
+                        myScores.append(max(server.allo_rate(0,True), server.allo_rate(1,True)))
+                        server.delete(request)
+                        break
+                    myScores.append(server.allo_rate(numa,True))
+                    server.delete(request)
+                else: 
+                    myScores.append(bst_delta)
+        if request['is_double'] == 1:
+            k*=2
+        avail_indexs = sorted(range(len(myScores)), key=lambda i: myScores[i])[:k]
+        res = np.zeros(len(self.servers) * 2)
+        for ind in avail_indexs:
+            if myScores[ind] < bst_delta:
+                res[ind] = 1
+        return res
+
     def describe(self):
+        '''
+            return the server state
+        '''
         des = []
         for server in self.servers:
             des.append(server.describe())
@@ -215,6 +278,9 @@ class Cluster():
         return res
 
     def delete(self, request): 
+        '''
+            delete
+        '''
         i = 0
         for server in self.servers:
             del_status = server.delete(request)
@@ -223,17 +289,25 @@ class Cluster():
             i += 1
         return -1
 
-    def reset_status(self, status):
-        self.servers = [Server(self.cpu, self.mem) for i in range(self.N)]
-        for i in range(self.N):
-            self.servers[i].reset_status(status[i])
-
     def reset(self):
+        '''
+            reset the server state
+        '''
         self.servers = [Server(self.cpu, self.mem) for i in range(self.N)]
+
+    def cal_cpu_allocation_rate(self):
+        '''
+            return allocation rate of cpu
+        '''
+        allocation_rate=[]
+        for server in self.servers:
+            allocation_rate.append(1-server.allo_rate(0,True))
+            allocation_rate.append(1-server.allo_rate(1,True))
+        return np.mean(allocation_rate)
 
 class SchedEnv(gym.Env):
     metadata = {'render.modes': ['human']}
-    def __init__(self, N, cpu, mem, path, render_path=None, allow_release=False, double_thr=1e10):
+    def __init__(self, N, cpu, mem, path, render_path=None, allow_release=False, rew_fn='iden',double_thr=1e10, topk=3):
         '''
             N is the number of servers, cpu and mem are the attribute of the server
             path is the csv path
@@ -242,8 +316,11 @@ class SchedEnv(gym.Env):
         self.N = N
         self.cpu = cpu
         self.mem = mem
+        self.topk = topk
         self.cluster = Cluster(N, cpu, mem)
         self.requests = getData(path, double_thr)
+        self.rew_fn = rew_fn
+        self.max_delta = 5000
         self.t = 0
         self.dur = 0
         self.allow_release = allow_release
@@ -312,21 +389,11 @@ class SchedEnv(gym.Env):
 
 
     def reward(self):
-        return 1
-
-    # def reward(self,action):
-    #     request = self.requests[self.t]
-    #     if (request['cpu']==4 and action in [0,1]) or\
-    #         (request['cpu']==8 and action in [2,3]) or\
-    #         (request['cpu']==16 and action in [5,4]) or\
-    #         (request['cpu']==1 and action in [6,7]) or\
-    #         (request['cpu']==2 and action in [8,9])   :
-    #         return 1
-    #     else:
-    #         return 0
-
-    # def reward(self,request):
-    #     return request['cpu']/self.cpu
+        rew_fn = self.rew_fn
+        if rew_fn == 'iden':
+                return 1
+        elif rew_fn == 'cpu_allo':
+                return self.cluster.cal_cpu_allocation_rate()
 
     def step(self, action):
         '''
@@ -346,16 +413,15 @@ class SchedEnv(gym.Env):
         else:
             request_info =[[[request['cpu'], request['mem']], [0,0]], [[0,0], [request['cpu'], request['mem']]]]
         self.handle_delete()
+
         state =  self.cluster.describe()
         reward = self.reward()
-        # reward = self.reward(action)
         done  = self.termination()
 
         avail = self.get_attr('avail')
-        feat = self.get_attr('req')
-        obs = self.get_attr('obs')
+        feat = self.get_attr('req')                  
 
-        return action, state, reward, done, avail, feat, obs
+        return action, state, reward, done, avail, feat, state
 
 
     def _step(self, action):
@@ -379,7 +445,9 @@ class SchedEnv(gym.Env):
                 request_info =[[[request['cpu'], request['mem']], [0,0]], [[0,0], [request['cpu'], request['mem']]]]
             return request_info
         elif attr_name == 'avail':
-            return self.cluster.check_usable(request)
+            # return self.cluster.check_usable(request)
+            return self.cluster.get_topk_action_by_bst(request, self.topk)
+            
         elif attr_name == 'obs':
             return self.cluster.describe()
         elif attr_name == 'req_step':

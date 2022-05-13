@@ -1,7 +1,7 @@
 # --- Default ---
 
 # Environment Options
-num_process: 10
+num_process: 1
 
 # Learning Options
 learn_interval: 1
@@ -15,9 +15,9 @@ tau: 0.001
 target_update_interval: 1
 
 memory: 'replay'
-capacity: 1000000
-test_interval: 200
+capacity: 10000000
+test_interval: 25
 
 q_nstep: 5
-grad_norm_clip: 10
-entropy_coef: 0.001
+grad_norm_clip: 5
+entropy_coef: 0.005

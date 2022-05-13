@@ -69,7 +69,6 @@ class PPOLearner:
         
         old_mac_out, _ = self.old_mac.forward([[obs, feat], avail])
         old_pi = old_mac_out
-        # old_pi[mask == 0] = 1.0
         old_pi_taken = th.gather(old_pi, dim=1, index=actions.unsqueeze(-1))
         old_log_pi_taken = th.log(old_pi_taken + 1e-10)
 
@@ -81,8 +80,8 @@ class PPOLearner:
             vals = self.critic([obs, feat])
 
             td_error = (target_vals.detach() - vals)
-            masked_td_error = td_error * mask
-            critic_loss = (masked_td_error ** 2).sum() / mask.sum()
+            masked_td_error = td_error * critic_mask
+            critic_loss = (masked_td_error ** 2).sum() / critic_mask.sum()
 
             self.critic_optimiser.zero_grad()
             critic_loss.backward()
@@ -101,20 +100,25 @@ class PPOLearner:
             surr1 = ratios * advantages
             surr2 = th.clamp(ratios, 1 - self.args.eps_clip, 1 + self.args.eps_clip) * advantages
 
-            # entropy = -th.sum(pi * th.log(pi + 1e-10), dim=-1)
-            # + self.args.entropy_coef * entropy
-            actor_loss = -((th.min(surr1, surr2) ) * mask).sum() / mask.sum()
+            entropy = -th.sum(pi * th.log(pi + 1e-10), dim=-1)
+            entropy[mask==0] = 0.0
+            entropy = entropy.unsqueeze(-1)
+            actor_loss = -((th.min(surr1, surr2) + self.args.entropy_coef * entropy) * critic_mask).sum() / critic_mask.sum()
 
             # Optimise agents
             self.agent_optimiser.zero_grad()
             actor_loss.backward()
             grad_norm = clip_grad_norm_(self.agent_params, self.args.grad_norm_clip)
             self.agent_optimiser.step()
-        
+
+        self.learn_cnt += 1
+        if self.args.tau < 1:
+            self._update_targets_soft(self.args.tau)
+        elif  self.learn_cnt / self.args.target_update_interval >= 1.0:
+            self.target_critic.load_state_dict(self.critic.state_dict())
+            self.learn_cnt = 0
+            
         self.old_mac.load_state(self.mac)
-
-        self._update_targets_soft(self.args.tau)
-
         return {
             'actor_loss': actor_loss.item(),
             'critic_loss': critic_loss.item()
@@ -130,16 +134,16 @@ class PPOLearner:
         self.critic.cuda()
         self.target_critic.cuda()
 
-    def save_models(self, path):
-        self.mac.save_models(path)
-        th.save(self.critic.state_dict(), "{}/critic.th".format(path))
-        th.save(self.agent_optimiser.state_dict(), "{}/agent_opt.th".format(path))
-        th.save(self.critic_optimiser.state_dict(), "{}/critic_opt.th".format(path))
+    def save_models(self, path, x):
+        self.mac.save_models(path, x)
+        th.save(self.critic.state_dict(), f"{path}/critic_epoch{x}.th")
+        th.save(self.agent_optimiser.state_dict(), f"{path}/agent_opt_epoch{x}.th")
+        th.save(self.critic_optimiser.state_dict(), f"{path}/critic_opt_epoch{x}.th")
 
-    def load_models(self, path):
-        self.mac.load_models(path)
-        self.critic.load_state_dict(th.load("{}/critic.th".format(path), map_location=lambda storage, loc: storage))
+    def load_models(self, path, x):
+        self.mac.load_models(path, x)
+        self.critic.load_state_dict(th.load(f"{path}/critic_epoch{x}.th", map_location=lambda storage, loc: storage))
         self.target_critic.load_state_dict(self.critic.state_dict())
-        self.agent_optimiser.load_state_dict(th.load("{}/agent_opt.th".format(path), map_location=lambda storage, loc: storage))
-        self.critic_optimiser.load_state_dict(th.load("{}/critic_opt.th".format(path), map_location=lambda storage, loc: storage))
+        self.agent_optimiser.load_state_dict(th.load(f"{path}/agent_opt_epoch{x}.th", map_location=lambda storage, loc: storage))
+        self.critic_optimiser.load_state_dict(th.load(f"{path}/critic_opt_epoch{x}.th", map_location=lambda storage, loc: storage))
     
