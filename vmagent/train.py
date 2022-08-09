@@ -13,10 +13,12 @@ from components import REGISTRY as mem_REGISTRY
 from runx.logx import logx
 from hashlib import sha1
 import time
+
 import csv
 import random
 from line_profiler import LineProfiler
 from torch.distributions import Categorical
+
 
 parser = argparse.ArgumentParser(description='Sched More Servers')
 parser.add_argument('--env', type=str,default='recovering')
@@ -39,6 +41,7 @@ conf = parser.parse_args()
 args = Config(conf.env, conf.alg)
 
 
+
 DATA_PATH = 'data/dataset_deal2.csv'
 
 args.batch_size = conf.batch_size
@@ -55,10 +58,12 @@ args.num_process = conf.num_process
 args.eps2 = conf.eps2
 
 MAX_EPOCH = conf.epoch
+
 BATCH_SIZE = args.batch_size
 REW_FN = conf.rew_fn
 
 logpath = f'mylogs/server{args.N}/{conf.env}/' + f'{str(conf.alg)}_{BATCH_SIZE}x{args.train_n}_{args.capacity}/{str(args.gamma)}_{str(args.lr)}/{args.entropy_coef}_{args.tau}/{args.eps2}'
+
 
 logx.initialize(logdir=logpath, coolname=True, tensorboard=True, hparams=vars(args))
 
@@ -184,6 +189,7 @@ def run(envs, step_list, mac, mem, learner, eps, args, x, flag):
         obs = info['obs']
 
 if __name__ == "__main__":
+
     if args.double_thr is None:
         double_thr = 1000
     else:
@@ -237,6 +243,7 @@ if __name__ == "__main__":
         logx.metric('train', metrics, x)
 
         if x % args.test_interval == 0:
+
             train_rews = []
             train_lens = []
             cpu_rates = []
@@ -257,6 +264,7 @@ if __name__ == "__main__":
             mem_rates = np.array(mem_rates)
 
             
+
             val_metric = {
                 'train_len': train_lens.mean(),
                 'train_rew': train_rews.mean(),
@@ -268,11 +276,11 @@ if __name__ == "__main__":
             if x >= MAX_EPOCH-250:
                 path = f'models/'
 
+
                 if not os.path.exists(path):
                     os.makedirs(path)
 
                 learner.save_models(path,x)
 
             t_end = time.time()
-            print(f'Epoch {x}/{MAX_EPOCH}; lasted %d hour, %d min, %d sec ' %
-                  time_format(t_end - t_start))
+            print(f'Epoch {x}/{MAX_EPOCH}; lasted %d hour, %d min, %d sec ' % time_format(t_end - t_start))

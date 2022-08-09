@@ -1,9 +1,7 @@
-from config import Config
-import os
-import copy
 import numpy as np
 import torch as th
 from schedgym.sched_env import SchedEnv
+
 from schedgym.mySubproc_vec_env import SubprocVecEnv
 from utils.rl_utils import linear_decay, time_format
 import argparse

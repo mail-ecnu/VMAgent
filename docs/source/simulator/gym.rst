@@ -46,7 +46,7 @@ Interaction Example
    import numpy as np
    from schedgym.sched_env import SchedEnv
 
-   DATA_PATH = 'vmagent/data/dataset.csv'
+   DATA_PATH = 'vmagent/data/Huawei-East-1.csv'
    env = SchedEnv(5, 40, 90, DATA_PATH, render_path='../test.p',
                       allow_release=False, double_thr=32)
    MAX_STEP = 1e4

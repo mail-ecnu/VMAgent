@@ -1,12 +1,9 @@
 from config import Config
 import os
-import copy
 import numpy as np
 from schedgym.sched_env import SchedEnv
 from schedgym.mySubproc_vec_env import SubprocVecEnv
-from utils.rl_utils import linear_decay, time_format
 import argparse
-from components.replay_memory import ReplayMemory
 from controllers import REGISTRY as mac_REGISTRY
 from learners import REGISTRY as le_REGISTRY
 from components import REGISTRY as mem_REGISTRY
@@ -16,9 +13,9 @@ import torch
 import pandas as pd
 import pdb
 import time
-import random
 import csv
 import pickle
+
 
 print(torch.cuda.is_available())
 
@@ -36,6 +33,7 @@ conf = parser.parse_args()
 args = Config(conf.env, None)
 args.N = conf.N
 args.baseline = conf.baseline
+
 
 logpath = f'mylogs/baselines/'+ f'{conf.env}/{str(conf.baseline)}/'
 
@@ -119,6 +117,7 @@ def sample_baselines(envs, step_list, method, args):
             remains[indexs[i]] = next_obs[i]
         stop_idxs[alives] += 1
 
+
         next_avail = info['avail']
 
         tot_lenth[alives] += 1
@@ -127,6 +126,7 @@ def sample_baselines(envs, step_list, method, args):
 
 
 if __name__ == "__main__":
+
 
     render_path = None
     envs = SubprocVecEnv([make_env(args.N, args.cpu, args.mem, allow_release=(
@@ -139,6 +139,7 @@ if __name__ == "__main__":
     rewards = []
     cpu_rates = []
     mem_rates = []
+
     if conf.baseline == 'random':
         num = 30
     else:
@@ -153,6 +154,7 @@ if __name__ == "__main__":
         rewards.append(test_rew)
 
     path = f'search/{args.baseline}/{conf.env}/{args.N}server/'
+
 
     if not os.path.exists(path):
         os.makedirs(path)
