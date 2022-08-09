@@ -1,3 +1,7 @@
-mac: 'ppomac'
+mac: 'ac_mac'
 learner: 'ppo_learner'
-agent: 'NormalACAgent'
+agent: 'ACAgent'
+capacity: 30000
+batch_size: 4096
+epochs: 4
+eps_clip: 0.2

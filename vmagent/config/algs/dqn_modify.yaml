@@ -1,0 +1,8 @@
+mac: 'vectormac'
+learner: 'q_learner'
+agent: 'DQNAgent_modify'
+
+batch_size: 1024
+train_n: 5
+capacity: 2000000
+eps2: 0

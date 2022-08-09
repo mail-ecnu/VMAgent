@@ -1,3 +1,5 @@
-mac: 'sacmac'
+mac: 'ac_mac'
 learner: 'sac_learner'
-agent: 'SACAgent'
+agent: 'ACAgent'
+capacity: 10000000
+batch_size: 4096

@@ -15,11 +15,11 @@ def _worker(remote, parent_remote, env_fn_wrapper):
         try:
             cmd, data = remote.recv()
             if cmd == 'step':
-                action, observation, reward, done = env.step(data)
+                action, observation, reward, done, avails, feats, obs = env.step(data)
                 # if done:
                     # save final observation where user can get it, then reset
                     # observation = env.reset()
-                remote.send((action, observation, reward, done))
+                remote.send((action, observation, reward, done, avails, feats, obs))
             # elif cmd == 'seed':
             #     remote.send(env.seed(data))
             elif cmd == 'reset':
@@ -100,13 +100,13 @@ class SubprocVecEnv(VecEnv):
         self.waiting = False
         
         if self.is_step_one_hot:
-            act, obs, rews, dones, step_oh = zip(*results)
+            act, states, rews, dones, avails, feats, obs, step_oh = zip(*results)
             self.alives2[self.alives] = ~np.array(dones)
-            return np.stack(act), np.stack(obs), np.stack(rews), np.stack(dones), np.stack(step_oh)
+            return np.stack(act), np.stack(states), np.stack(rews), np.stack(dones), {'avail':np.stack(avails),'feat':np.stack(feats),'obs':np.stack(obs)}, np.stack(step_oh)
         else:
-            act, obs, rews, dones = zip(*results)
+            act, states, rews, dones, avails, feats, obs = zip(*results)
             self.alives2[self.alives] = ~np.array(dones)
-            return np.stack(act), np.stack(obs), np.stack(rews), np.stack(dones)
+            return np.stack(act), np.stack(states), np.stack(rews), np.stack(dones), {'avail':np.stack(avails),'feat':np.stack(feats),'obs':np.stack(obs)}
 
     def get_alives(self):
         return self.alives
@@ -146,6 +146,5 @@ class SubprocVecEnv(VecEnv):
 
     def env_method(self, method_name, *method_args, indices=None, **method_kwargs):
         pass
-
 
 

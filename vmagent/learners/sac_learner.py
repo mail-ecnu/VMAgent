@@ -3,31 +3,39 @@ import torch as th
 from torch.optim import Adam
 import torch.nn.functional as F
 from torch.nn.utils import clip_grad_norm_
-
+from modules.critics import REGISTRY as critic_resigtry
 
 class SACLearner:
     def __init__(self, mac, args):
         self.args = args
         self.mac = mac
-        self.params = list(mac.parameters())
         self.learn_cnt= 0
-        self.optimiser = Adam(self.params, lr=args.lr)
         self.clip_grad_param = 1
 
-        # a little wasteful to deepcopy (e.g. duplicates action selector), but should work for any MAC
-        self.target_mac = copy.deepcopy(mac)
-        self.target_param = list(self.target_mac.parameters())
-        self.last_target_update_episode = 0
-        self.tau = self.args.tau
-        self.gpu_enable = True
+        self.agent_params = list(mac.parameters())
+        self.agent_optimiser = Adam(params=self.agent_params, lr=args.lr)
 
-    def soft_update(self, local_model , target_model):
-        for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
-            target_param.data.copy_(self.tau*local_param.data + (1.0-self.tau)*target_param.data)
-    
-    def _update_targets(self):
-        for target_param, local_param in zip(self.target_mac.parameters(), self.mac.parameters()):
-            target_param.data.copy_(self.tau*local_param.data + (1.0-self.tau)*target_param.data)
+        self.critic = critic_resigtry['ac_critic']([(args.N, 2, 2), (1, 2, 2)], args.N*2, args)
+        self.target_critic = copy.deepcopy(self.critic)
+
+        self.q_critic = critic_resigtry['soft_q']([(args.N, 2, 2), (1, 2, 2)], args.N*2, args)
+        self.target_q_critic = copy.deepcopy(self.q_critic)
+
+        self.critic_params = list(self.critic.parameters())
+        self.critic_optimiser = Adam(params=self.critic_params, lr=args.lr)
+
+        self.critic_q_params = list(self.q_critic.parameters())
+        self.critic_q_optimiser = Adam(params=self.critic_q_params, lr=args.lr)
+
+        self.log_alpha = th.tensor([0.0]).cuda()
+        self.log_alpha.requires_grad = True
+        self.alpha_optimiser = Adam(params=[self.log_alpha], lr=0.001)
+        self.alpha = self.log_alpha.exp().detach() 
+
+        # a little wasteful to deepcopy (e.g. duplicates action selector), but should work for any MAC
+        print(mac)
+        self.alpha_update_step = 0
+        self.gpu_enable = True
     
     def train(self, batch):
         # Get the relevant quantities
@@ -45,7 +53,7 @@ class SACLearner:
         obs = th.FloatTensor(obs)
         feat = th.FloatTensor(feat)
         avail = th.FloatTensor(avail)
-        a = th.LongTensor(action_list)#batch.action))
+        actions = th.LongTensor(action_list)#batch.action))
         rew = th.FloatTensor(reward_list)##batch.reward))
         rew = rew.view(-1)#, 1)
         mask = th.LongTensor(mask_list)#batch.mask))
@@ -53,113 +61,116 @@ class SACLearner:
         next_obs = th.FloatTensor(next_obs)
         next_feat = th.FloatTensor(next_feat)
         next_avail = th.FloatTensor(next_avail)
-        ind =  th.arange(a.shape[0])
+        ind =  th.arange(actions.shape[0])
         if self.gpu_enable:
             obs = obs.cuda()
             feat = feat.cuda()
             avail = avail.cuda()
-            a = a.cuda()
+            actions = actions.cuda()
             rew = rew.cuda()
             mask = mask.cuda()
             next_obs = next_obs.cuda()
             next_feat = next_feat.cuda()
             next_avail = next_avail.cuda()
             ind =  ind.cuda()
-        # Calculate estimated Q-Values
-
+        
         mac_out, _ = self.mac.forward([[obs, feat], avail])
+        pi = mac_out
+        pi_taken = th.gather(pi, dim=1, index=actions.unsqueeze(-1))
+        log_pi_taken = th.log(pi_taken + 1e-10)
 
-        # Pick the Q-Values for the actions taken by each agent
+        rew = rew.unsqueeze(-1)
+        critic_mask = mask.unsqueeze(-1)
 
-        chosen_action_qvals = mac_out[ind, a]  # Remove the last dim
-        target_mac_out = self.target_mac.forward([[next_obs, next_feat], next_avail])[0]
+        # Qcurrent  
+        q_values = self.q_critic([obs,feat],actions)
+        # Qtarget
+        expected_q_values = self.target_q_critic([obs,feat],actions)
+        # Vnext_traget
+        target_values = self.target_critic([next_obs,next_feat])
+        # Vcurrent
+        expected_values = self.critic([obs,feat])
 
-        # ---------------------------- update actor ---------------------------- #
-        current_alpha = copy.deepcopy(self.mac.agent.alpha)
+        # Qnet TD-error rew + γ*Vnext- Q
+        next_q_values = rew + critic_mask * self.args.gamma * target_values       
+        q_td_error = next_q_values.detach() - q_values
+        masked_q_td_error = q_td_error * critic_mask
 
-        _, action_probs, log_pis = self.mac.get_act_probs([[obs, feat], avail])
+        #Vnet TD-error V - (Q-logpi)
+        next_values = expected_q_values - log_pi_taken
+        value_error = expected_values - next_values.detach()
+        masked_value_error = value_error * critic_mask
 
-        q1 = self.mac.agent.critic1([obs, feat])
-        V1 = (action_probs.cuda() * q1.cuda()).sum(1)
-        q2 = self.mac.agent.critic2([obs, feat])
-        V2 = (action_probs.cuda() * q2.cuda()).sum(1)
+        q_loss = (masked_q_td_error ** 2).sum() / mask.sum()
+        critic_loss = (masked_value_error ** 2).sum() / mask.sum()
 
-        min_Q = action_probs.cuda() * th.min(q1,q2)
+        self.critic_q_optimiser.zero_grad()
+        q_loss.backward(retain_graph=True)
+        grad_norm = clip_grad_norm_(self.critic_q_params, self.args.grad_norm_clip)
+        self.critic_q_optimiser.step()
 
-        actor_loss = (self.mac.agent.alpha.cuda() * log_pis.cuda() - min_Q).sum(1).mean()
+        self.critic_optimiser.zero_grad()
+        critic_loss.backward(retain_graph=True)
+        grad_norm = clip_grad_norm_(self.critic_params, self.args.grad_norm_clip)
+        self.critic_optimiser.step()
+
+        # Actor loss alpha*logpi - Q  
+        actor_loss = ((self.alpha.detach() * log_pi_taken - expected_q_values) * critic_mask).sum() / mask.sum()
         
-        
-        self.mac.agent.actor_optimizer.zero_grad()
+
+        self.agent_optimiser.zero_grad()
         actor_loss.backward(retain_graph=True)
-        self.mac.agent.actor_optimizer.step()
-        
-        # Compute alpha loss
-        entropy = (log_pis * action_probs).sum(1)
-        alpha_loss = - (self.mac.agent.log_alpha.exp() * (entropy.cpu() + self.mac.agent.target_entropy).detach().cpu()).mean()
-        self.mac.agent.alpha_optimizer.zero_grad()
-        alpha_loss.backward(retain_graph=True)
-        self.mac.agent.alpha_optimizer.step()
-        self.mac.agent.alpha = self.mac.agent.log_alpha.exp().detach()
+        grad_norm = clip_grad_norm_(self.agent_params, self.args.grad_norm_clip)
+        self.agent_optimiser.step()
 
-        # ---------------------------- update critic ---------------------------- #
-        # Get predicted next-state actions and Q values from target models
-        with th.no_grad():
-            idx = th.eq(mask, 1)
-            Q_targets = rew
+        entropy = -th.sum(pi * th.log(pi + 1e-10), dim=-1)
+        entropy[mask==0] = 0.0
+        alpha_loss = - (self.log_alpha.exp() * (entropy + log_pi_taken.squeeze()).detach()).mean()
 
-            _, action_probs_next, log_pis_next = self.mac.get_act_probs\
-                ([[next_obs[idx],next_feat[idx]],None])
-            Q_target1_next = self.mac.agent.critic1_target([next_obs[idx],next_feat[idx]])
-            Q_target2_next = self.mac.agent.critic2_target([next_obs[idx],next_feat[idx]])
-            V1_next = (action_probs_next.cuda() * Q_target1_next).sum(1)
-            V2_next = (action_probs_next.cuda() * Q_target2_next).sum(1)
-            V_target_next = th.min(V1_next,V2_next) - (self.mac.agent.alpha.cuda()* log_pis_next.cuda()).sum(1)
-            # Compute Q targets for current states (y_i)
-            Q_targets[idx] = rew[idx] + (self.args.gamma * V_target_next)
+        self.alpha_update_step += 1
+        if self.alpha_update_step % 5 == 0:
+            self.alpha_optimiser.zero_grad()
+            alpha_loss.backward(retain_graph=True)
+            self.alpha_optimiser.step()
+            self.alpha = self.log_alpha.exp()
 
-        # Compute critic loss
-        critic1_loss = 0.5 * F.mse_loss(V1, Q_targets)
-        critic2_loss = 0.5 * F.mse_loss(V2, Q_targets)
+        self._update_targets_soft(self.args.tau)
 
-        # Update critics
-        # critic 1
-        self.mac.agent.critic1_optimizer.zero_grad()
-        critic1_loss.backward(retain_graph=True)
-        clip_grad_norm_(self.mac.agent.critic1.parameters(), self.clip_grad_param)
-        self.mac.agent.critic1_optimizer.step()
-        
-        # critic 2
-        self.mac.agent.critic2_optimizer.zero_grad()
-        critic2_loss.backward()
-        clip_grad_norm_(self.mac.agent.critic2.parameters(), self.clip_grad_param)
-        self.mac.agent.critic2_optimizer.step()        
-
-        self.learn_cnt += 1
-        if  self.learn_cnt / self.args.target_update_interval >= 1.0:
-            self._update_targets()
-            self.soft_update(self.mac.agent.critic1, self.mac.agent.critic1_target)
-            self.soft_update(self.mac.agent.critic2, self.mac.agent.critic2_target)
-            self.learn_cnt = 0
-
-        
         return {
             'actor_loss': actor_loss.item(),
-            'alpha_loss': alpha_loss.item(),
-            'critic1_loss': critic1_loss.item(),
-            'critic2_loss': critic2_loss.item()
+            'q_critic_loss': q_loss.item(),
+            'critic_loss': critic_loss.item(),
+            'alpha_loss': alpha_loss.item()
         }
+
+    def _update_targets_soft(self, tau):
+        for target_param, param in zip(self.target_critic.parameters(), self.critic.parameters()):
+            target_param.data.copy_(target_param.data * (1.0 - tau) + param.data * tau)
+        for target_param, param in zip(self.target_q_critic.parameters(), self.q_critic.parameters()):
+            target_param.data.copy_(target_param.data * (1.0 - tau) + param.data * tau)
 
     def cuda(self):
         self.mac.cuda()
-        self.target_mac.cuda()
+        self.critic.cuda()
+        self.target_critic.cuda()
+        self.q_critic.cuda()
+        self.target_q_critic.cuda()
 
-    def save_models(self, path):
-        self.mac.save_models(path)
-        th.save(self.optimiser.state_dict(), "{}/opt.th".format(path))
+    def save_models(self, path, x):
+        self.mac.save_models(path, x)
+        th.save(self.critic.state_dict(), f"{path}/critic_{x}.th")
+        th.save(self.q_critic.state_dict(), f"{path}/q_critic_{x}.th")
+        th.save(self.alpha_optimiser.state_dict(), f"{path}/alpha_opt_{x}.th")
+        th.save(self.agent_optimiser.state_dict(), f"{path}/agent_opt_{x}.th")
+        th.save(self.critic_optimiser.state_dict(), f"{path}/critic_opt_{x}.th")
+        th.save(self.critic_q_optimiser.state_dict(), f"{path}/q_critic_opt_{x}.th")
 
     def load_models(self, path):
         self.mac.load_models(path)
-        # Not quite right but I don't want to save target networks
-        self.target_mac.load_models(path)
-        self.optimiser.load_state_dict(th.load("{}/opt.th".format(path), map_location=lambda storage, loc: storage))
-    
+        self.critic.load_state_dict(th.load("{}/critic.th".format(path), map_location=lambda storage, loc: storage))
+        self.q_critic.load_state_dict(th.load("{}/q_critic.th".format(path), map_location=lambda storage, loc: storage))
+        self.target_critic.load_state_dict(self.critic.state_dict())
+        self.alpha_optimiser.load_state_dict(th.load("{}/agent_opt.th".format(path), map_location=lambda storage, loc: storage))
+        self.agent_optimiser.load_state_dict(th.load("{}/agent_opt.th".format(path), map_location=lambda storage, loc: storage))
+        self.critic_optimiser.load_state_dict(th.load("{}/critic_opt.th".format(path), map_location=lambda storage, loc: storage))
+        self.critic_q_optimiser.load_state_dict(th.load("{}/q_critic_opt.th".format(path), map_location=lambda storage, loc: storage))

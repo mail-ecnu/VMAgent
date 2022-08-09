@@ -1,10 +1,8 @@
 import torch as th
 from torch.distributions import Categorical
 import numpy as np
-import torch.nn as nn
 
 REGISTRY = {}
-
 
 class EpsilonGreedyActionSelector():
 
@@ -34,37 +32,19 @@ class EpsilonGreedyActionSelector():
         return picked_actions
 
 
-class NormalACActionSelector():
+class SoftPoliciesSelector():
+
+
     def __init__(self, args):
         self.args = args
 
-    def select_action(self, agent_outputs, avail_actions):
-        # agent_outputs：the output of the ActorNetwork after softmax
-        softmax = nn.Softmax(dim=-1)
-        action_probs = softmax(agent_outputs)*avail_actions.cpu()
-        # print(action_probs)
-        dist = Categorical(action_probs)
-        actions = dist.sample()
-        z = (action_probs == 0.0).float() * 1e-8
-        log_action_probabilities = th.log(action_probs + z)
-        return actions, action_probs, log_action_probabilities
-
-
-class PPOActionSelector():
-    def __init__(self, args):
-        self.args = args
-
-    def select_action(self, agent_outputs, avail_actions):
-        # agent_outputs：the output of the ActorNetwork after softmax
-        softmax = nn.Softmax(dim=-1)
-        action_probs = softmax(agent_outputs)*avail_actions.cpu()
-        dist = Categorical(action_probs)
-        actions = dist.sample()
-        log_action_probabilities = dist.log_prob(actions)
-        dist_entropy = dist.entropy()
-        return actions, action_probs, log_action_probabilities, dist_entropy
+    def select_action(self, agent_inputs, avail_actions, flag=False):  
+        if flag:
+            picked_actions = th.argmax(agent_inputs,dim=-1)
+        else:
+            picked_actions = Categorical(agent_inputs).sample()
+        return picked_actions
 
 
 REGISTRY["epsilon_greedy"] = EpsilonGreedyActionSelector
-REGISTRY["AC"] = NormalACActionSelector
-REGISTRY["ppo"] = PPOActionSelector
+REGISTRY["soft_policies"] = SoftPoliciesSelector

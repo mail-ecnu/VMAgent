@@ -19,6 +19,27 @@ Field         Type                                 Description
 ``type``      ``int``                              0 denotes creation while 1 denotes deleteion
 ==========    ==================================== ===============================================
 
+Notes
+--------------------
+In fact, some small-sized hosts in the dataset are virtual machine instances for internal and special users. These virtual machines share CPU resources, and the sharing ratio is between 1/4 and 1/2. 
+The proportion for the sharing VMs is as follows:
+=========     ===============
+VM Type       proportion 
+=========     ===============
+``2U4G``      ``65%`` 
+``4U8G``      ``75%`` 
+``8U16G``     ``60%`` 
+``1U2G``      ``90%`` 
+``4U16G``     ``90%`` 
+``1U1G``      ``90%`` 
+``2U8G``      ``90%`` 
+``8U32G``     ``90%`` 
+``1U4G``      ``90%`` 
+=========     ===============
+
+VMAgent finally uses the middle value of 1/3 for simulation (It means that each core CPU of virtual machine only uses 1/3 core CPU of the actual physical host).
+
+
 Statistical Analysis
 --------------------
 
@@ -37,6 +58,10 @@ To gain better understanding of the cpu and memory distribution, we plot the his
 
 .. figure:: ../images/scenarios/mem.png
    :alt: mem
+
+To see the length of different requests, we plot the curve of the lifetime:
+.. figure:: ../images/scenarios/lifetime.png
+   :alt: lifetime
 
 More than 2/3 requests only consumes 1U and less than 2G. We also plot the statiscs of the (cpu, mem) request:
 

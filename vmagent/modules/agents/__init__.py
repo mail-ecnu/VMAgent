@@ -1,11 +1,6 @@
-from .NormalACAgent import NormalACAgent
-from .SACAgent import SACAgent
-from .QmixAgent import QmixAgent
-from .DQNAgent import DQNAgent
+from .ACAgent import ACAgent
+from .DQNAgent_modify import DQNAgent_modify
 REGISTRY = {}
 
-
-REGISTRY['SACAgent'] = SACAgent
-REGISTRY['DQNAgent'] = DQNAgent
-REGISTRY['QmixAgent'] = QmixAgent
-REGISTRY['NormalACAgent'] = NormalACAgent
+REGISTRY['ACAgent'] = ACAgent
+REGISTRY['DQNAgent_modify'] = DQNAgent_modify

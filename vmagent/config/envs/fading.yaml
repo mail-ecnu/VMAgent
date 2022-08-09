@@ -1,5 +1,5 @@
 N: 5
-cpu: 40 
-mem: 90
+cpu: 42
+mem: 160
 allow_release: False
-double_thr: 32
+double_thr: 16
