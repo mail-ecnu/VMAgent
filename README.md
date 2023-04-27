@@ -43,6 +43,13 @@ conda activate VMAgent-dev
 python3 setup.py develop
 ```
 
+To use runx module and .cv2 module, you may need to do next instructs:
+```
+pip install runx
+sudo apt update
+sudo apt install libgl1-mesa-glx
+```
+
 ## Quick Examples
 
 In this quick example, we show how to train a dqn agent in a fading scenario. 

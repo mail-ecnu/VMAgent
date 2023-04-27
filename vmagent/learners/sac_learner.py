@@ -108,7 +108,7 @@ class SACLearner:
             Q_targets = rew
 
             _, action_probs_next, log_pis_next = self.mac.get_act_probs\
-                ([[next_obs[idx],next_feat[idx]],None])
+                ([[next_obs[idx],next_feat[idx]], next_avail[idx]])
             Q_target1_next = self.mac.agent.critic1_target([next_obs[idx],next_feat[idx]])
             Q_target2_next = self.mac.agent.critic2_target([next_obs[idx],next_feat[idx]])
             V1_next = (action_probs_next.cuda() * Q_target1_next).sum(1)
