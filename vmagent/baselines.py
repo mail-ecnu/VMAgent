@@ -127,7 +127,7 @@ if __name__ == "__main__":
     mem_rates = np.array(mem_rates) 
     data = [[results.mean(),results.std()],[cpu_rates.mean(),cpu_rates.std()],[mem_rates.mean(),mem_rates.std()]]
 
-    with open(path+'/results.csv','w')as f:
+    with open(path+'/results.csv', 'w', encoding="utf-8") as f:
         f_csv = csv.writer(f)
         f_csv.writerow(step_list)
         f_csv.writerow(data)
